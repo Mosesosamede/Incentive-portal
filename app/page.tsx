@@ -24,6 +24,8 @@ import {
   testConnection,
   getRewardConfig,
   seedPlaceholderDocuments,
+  isEmailRegisteredInPartners,
+  isNameRegisteredWithAnotherEmail,
   PartnerDocument,
   PartnerStatsDocument,
   PartnerCommissionDocument,
@@ -66,7 +68,9 @@ import {
   Grid,
   Menu,
   CreditCard,
-  Briefcase
+  Briefcase,
+  Eye,
+  EyeOff
 } from "lucide-react";
 
 // Safe date formatter to handle native Firestore Timestamps and fallback cases
@@ -213,9 +217,10 @@ export default function Home() {
   const [authMethod, setAuthMethod] = useState<"google" | "email">("google");
   const [authEmailMode, setAuthEmailMode] = useState<"signin" | "signup">("signin");
   const [authEmailError, setAuthEmailError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   
   // Demo Mode (simulates live backend population for visualization)
-  const [demoMode, setDemoMode] = useState(false);
+  const demoMode = false;
 
   // UTC Clock
   const [currentTime, setCurrentTime] = useState("");
@@ -498,7 +503,6 @@ export default function Home() {
     setLoading(true);
     try {
       await signOut(auth);
-      setDemoMode(false);
     } catch (error) {
       console.error("Logout rejected:", error);
     } finally {
@@ -545,6 +549,22 @@ export default function Home() {
     setSubmittingOnboarding(true);
 
     try {
+      // Check if email already exists in Firestore
+      const emailExists = await isEmailRegisteredInPartners(email);
+      if (emailExists) {
+        setOnboardingError(`The email address "${email}" is already registered to a partner account.`);
+        setSubmittingOnboarding(false);
+        return;
+      }
+
+      // Check if full name is linked to another email in Firestore
+      const nameInvalid = await isNameRegisteredWithAnotherEmail(fullName, email);
+      if (nameInvalid) {
+        setOnboardingError(`The name "${fullName}" is linked to a different email account. Please use a unique full name.`);
+        setSubmittingOnboarding(false);
+        return;
+      }
+
       // 1. Auto-generate Uppercase Referral Code (e.g. MOSES91, DELOXE73)
       const rawBase = (partnerType === "corporate" ? companyName : fullName)
         .replace(/[^a-zA-Z0-9]/g, "")
@@ -634,6 +654,22 @@ export default function Home() {
     }
 
     try {
+      // Check if email already exists on another account in Firestore
+      const emailExists = await isEmailRegisteredInPartners(editForm.email, user.uid);
+      if (emailExists) {
+        setEditError(`The email address "${editForm.email}" is already registered to another partner account.`);
+        setEditLoading(false);
+        return;
+      }
+
+      // Check if full name is linked to another email in Firestore
+      const nameInvalid = await isNameRegisteredWithAnotherEmail(editForm.fullName, editForm.email);
+      if (nameInvalid) {
+        setEditError(`The name "${editForm.fullName}" is linked to a different email account. Please use a unique full name.`);
+        setEditLoading(false);
+        return;
+      }
+
       await updatePartnerProfile(user.uid, {
         fullName: editForm.fullName,
         companyName: partner.partnerType === "corporate" ? editForm.companyName : null,
@@ -742,7 +778,7 @@ export default function Home() {
                 Talent Incentive Hub
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-white mb-6 leading-[1.1]">
-                Partner Portal <br />
+                Referral Incentive Portal <br />
                 <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-emerald-400 bg-clip-text text-transparent">
                   Incentives on Autopilot.
                 </span>
@@ -881,15 +917,29 @@ export default function Home() {
                   <label className="block text-slate-400 text-xs font-mono mb-1.5 uppercase tracking-wider">
                     Password
                   </label>
-                  <input
-                    type="password"
-                    id="auth-password-input"
-                    required
-                    value={authPassword}
-                    onChange={(e) => setAuthPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-[#050914] border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-sm focus:outline-none focus:border-amber-500/50 transition-colors font-mono"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="auth-password-input"
+                      required
+                      value={authPassword}
+                      onChange={(e) => setAuthPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full bg-[#050914] border border-slate-800 rounded-xl pl-4 pr-11 py-3 text-slate-100 text-sm focus:outline-none focus:border-amber-500/50 transition-colors font-mono"
+                    />
+                    <button
+                      type="button"
+                      id="toggle-auth-password-visibility-btn"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 focus:outline-none p-1 cursor-pointer"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {authEmailError && (
@@ -910,7 +960,7 @@ export default function Home() {
                   ) : authEmailMode === "signin" ? (
                     "Secure Account Login"
                   ) : (
-                    "Create Partner Account"
+                    "Create Referral Incentive Account"
                   )}
                 </button>
               </form>
@@ -928,7 +978,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="max-w-7xl w-full mx-auto px-6 py-6 text-center text-slate-600 text-xs font-mono border-t border-slate-900/60 z-10">
-          © {new Date().getFullYear()} Deloxe Inc. All privileges protected. Unified Partner Registry.
+          © {new Date().getFullYear()} Deloxe Inc. All privileges protected. Unified Referral Incentive Registry.
         </footer>
       </div>
     );
@@ -953,14 +1003,14 @@ export default function Home() {
             <div className="w-12 h-12 bg-slate-900 border border-amber-500/20 rounded-xl flex items-center justify-center font-mono font-bold text-amber-400 text-xl shadow-lg shadow-amber-500/10 mx-auto mb-4">
               DX
             </div>
-            <h1 className="text-3xl font-display font-extrabold text-white">Partner Onboarding</h1>
+            <h1 className="text-3xl font-display font-extrabold text-white">Referral Incentive Onboarding</h1>
             <p className="text-slate-400 text-xs font-mono mt-1 uppercase tracking-widest">Complete registration to activate tracking slugs</p>
           </div>
 
           {/* Stepper Indicators */}
           <div className="grid grid-cols-4 gap-2 mb-10 text-center font-mono text-[10px]">
             {[
-              { label: "PARTNER TYPE", step: 1 },
+              { label: "INCENTIVE TYPE", step: 1 },
               { label: "PROFILE INFO", step: 2 },
               { label: "FINANCIALS", step: 3 },
               { label: "AGREEMENT", step: 4 }
@@ -988,7 +1038,7 @@ export default function Home() {
                 const configCorporate = getRewardConfig(obForm.country, "corporate");
                 return (
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-4">
-                    <h3 className="font-display font-bold text-lg text-white">1. Select Partner Structure</h3>
+                    <h3 className="font-display font-bold text-lg text-white">1. Select Structure</h3>
                     <p className="text-slate-400 text-xs leading-relaxed mb-2">
                       Your allocation rate depends automatically on your structure and country. Choose your operating country below to see local currency rates.
                     </p>
@@ -1036,7 +1086,7 @@ export default function Home() {
                         }`}
                       >
                         <Briefcase className={`w-6 h-6 ${obForm.partnerType === "corporate" ? "text-amber-400" : "text-slate-400"}`} />
-                        <span className="font-display font-bold text-sm text-slate-100">Corporate Partner</span>
+                        <span className="font-display font-bold text-sm text-slate-100">Corporate Referral Incentive</span>
                         <span className="text-[11px] text-slate-400 mt-1">Tailored for HR agencies, talent consulting firms, and institutions.</span>
                         <span className="text-xs font-mono text-amber-400 mt-3 font-semibold">
                           {configCorporate.symbol}{configCorporate.rate.toLocaleString()} per Verified Milestone
@@ -1227,17 +1277,17 @@ export default function Home() {
               {/* Step 4: Digital Signature */}
               {onboardingStep === 4 && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-4">
-                  <h3 className="font-display font-bold text-lg text-white">4. Partner Agreement & Sign-off</h3>
+                  <h3 className="font-display font-bold text-lg text-white">4. Referral Incentive Agreement & Sign-off</h3>
                   <p className="text-slate-400 text-xs leading-relaxed mb-1">
                     Please read through the legal stipulations below and provide your digital signature authorization.
                   </p>
 
                   <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 max-h-40 overflow-y-auto text-[10px] text-slate-400 leading-relaxed font-mono">
-                    <p className="font-bold text-amber-400 mb-2">DELOXE HR PARTNER INCENTIVE AGREEMENT</p>
-                    <p className="mb-2">1. SCOPE OF ENGAGEMENT: Partner will act as an independent representative distributing approved tracking URLs to refer competent candidates.</p>
+                    <p className="font-bold text-amber-400 mb-2">DELOXE HR REFERRAL INCENTIVE AGREEMENT</p>
+                    <p className="mb-2">1. SCOPE OF ENGAGEMENT: Referral incentive representative will act as an independent representative distributing approved tracking URLs to refer competent candidates.</p>
                     <p className="mb-2">2. CONVERSION AUDITING: All stats, clicks, and subsequent milestone payments are calculated exclusively by Deloxe’s backend. Self-calculations or client-side logs are non-binding.</p>
-                    <p className="mb-2">3. REWARD CRITERIA: Conversion commissions trigger strictly upon candidate advancement to milestones. Rate schedules are assigned automatically (₦200 for individual structures, ₦500 for corporate partners).</p>
-                    <p>4. PRIVILEGE REVOCATION: Deloxe reserves the right to suspend any partner code found in violation of referral policies or executing malicious bot click traffic.</p>
+                    <p className="mb-2">3. REWARD CRITERIA: Conversion commissions trigger strictly upon candidate advancement to milestones. Rate schedules are assigned automatically (₦200 for individual structures, ₦500 for corporate representatives).</p>
+                    <p>4. PRIVILEGE REVOCATION: Deloxe reserves the right to suspend any referral code found in violation of referral policies or executing malicious bot click traffic.</p>
                   </div>
 
                   <div className="flex flex-col gap-4 mt-2">
@@ -1313,7 +1363,7 @@ export default function Home() {
                     disabled={submittingOnboarding}
                     className="px-6 py-2.5 rounded-xl bg-emerald-500 text-slate-950 text-xs font-bold hover:bg-emerald-600 transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                   >
-                    {submittingOnboarding ? "Activating Portal..." : "Activate Partner Code"}
+                    {submittingOnboarding ? "Activating Portal..." : "Activate Referral Incentive Code"}
                   </button>
                 )}
               </div>
@@ -1336,7 +1386,7 @@ export default function Home() {
             <span>DELOXE STATE: SYNCHRONIZED</span>
           </div>
           <span className="text-slate-700">|</span>
-          <div>PARTNER ID: <span className="text-slate-400 font-bold">{partner.partnerDisplayId || ("DELXp" + partner.partnerId.slice(0, 4).toUpperCase())}</span></div>
+          <div>REFERRAL INCENTIVE ID: <span className="text-slate-400 font-bold">{partner.partnerDisplayId || ("DELXp" + partner.partnerId.slice(0, 4).toUpperCase())}</span></div>
           <span className="text-slate-700">|</span>
           <div className="hidden sm:inline">REWARD_RATE: <span className="text-amber-500 font-bold">{currencySymbol}{partner.rewardRate.toLocaleString()} / milestone</span></div>
         </div>
@@ -1360,7 +1410,7 @@ export default function Home() {
               <span className="font-display font-extrabold text-base tracking-tight text-white leading-none">
                 DELOXE HR
               </span>
-              <span className="text-[9px] font-mono tracking-widest text-slate-500 mt-1">PARTNER HUB v1.2</span>
+              <span className="text-[9px] font-mono tracking-widest text-slate-500 mt-1">REFERRAL INCENTIVE HUB v1.2</span>
             </div>
           </div>
 
@@ -1396,26 +1446,13 @@ export default function Home() {
 
           {/* User Widget */}
           <div className="flex items-center gap-4">
-            {/* Demo Toggle (Very elegant helper for evaluating UI stats easily) */}
-            <button
-              onClick={() => setDemoMode(!demoMode)}
-              className={`px-2.5 py-1.5 rounded-lg text-[10px] font-mono border transition-all flex items-center gap-1.5 cursor-pointer ${
-                demoMode 
-                  ? "bg-amber-500/10 border-amber-500/40 text-amber-400 font-bold" 
-                  : "bg-slate-950 border-slate-800 text-slate-500"
-              }`}
-              title="Toggle Simulated Activity Ledger to experience live statistics tracking instantly."
-            >
-              <Activity className={`w-3 h-3 ${demoMode ? "animate-pulse text-amber-400" : ""}`} />
-              <span>{demoMode ? "DEMO MODE" : "LIVE MODE"}</span>
-            </button>
 
             {/* User Details */}
             <div className="flex items-center gap-3 pl-3 border-l border-slate-800/60">
               <div className="flex flex-col items-end text-right hidden sm:flex">
                 <span className="text-xs font-bold text-slate-100 leading-none">{partner.fullName}</span>
                 <span className="text-[9px] font-mono text-slate-500 mt-1 uppercase tracking-wider">
-                  {partner.partnerType === "corporate" ? "Corporate Entity" : "Individual Partner"}
+                  {partner.partnerType === "corporate" ? "Corporate Entity" : "Individual Referral Incentive"}
                 </span>
               </div>
               <div className="w-8 h-8 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-center text-xs font-mono font-bold text-slate-400 uppercase">
@@ -1462,28 +1499,6 @@ export default function Home() {
       {/* Main Dashboard Container */}
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 flex-grow">
         
-        {/* Onboarding welcome success note */}
-        <AnimatePresence>
-          {commissions.length === 0 && !demoMode && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mb-8 p-4 bg-[#080d1a] border-l-4 border-amber-500 rounded-r-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl border border-slate-800/40"
-            >
-              <div className="flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-semibold text-sm text-slate-100 font-display">Tracking Active — Ready for Referrals</h4>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Your referral code is officially initialized in Firestore. Share your custom slug to gather live click statistics. Toggle <span className="text-amber-400 font-bold">Demo Mode</span> in the top bar to visualize fully loaded metrics, commissions, and payouts instantly!
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* Dashboard Title & Quick Status */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
@@ -1700,7 +1715,7 @@ export default function Home() {
                       <tr>
                         <td colSpan={6} className="p-12 text-center text-slate-500 leading-relaxed font-mono">
                           No conversion commissions on record.<br />
-                          {demoMode ? "" : <span className="text-[10px] mt-1 text-slate-600 block">Switch on &quot;Demo Mode&quot; in the top bar to preview sample activity.</span>}
+                          <span className="text-[10px] mt-1 text-slate-600 block">Commission records appear upon processing of verified conversions.</span>
                         </td>
                       </tr>
                     ) : (
@@ -1768,7 +1783,7 @@ export default function Home() {
                       <tr>
                         <td colSpan={6} className="p-12 text-center text-slate-500 leading-relaxed font-mono">
                           No distributions recorded.<br />
-                          {demoMode ? "" : <span className="text-[10px] mt-1 text-slate-600 block">Payout records appear upon processing of verified conversions.</span>}
+                          <span className="text-[10px] mt-1 text-slate-600 block">Payout records appear upon processing of verified conversions.</span>
                         </td>
                       </tr>
                     ) : (
@@ -2062,7 +2077,7 @@ export default function Home() {
 
                   <div className="flex flex-col gap-3 font-mono text-[11px] text-slate-400">
                     {[
-                      { label: "Partner ID", value: partner.partnerDisplayId || ("DELXp" + partner.partnerId.slice(0, 4).toUpperCase()) },
+                      { label: "Referral Incentive ID", value: partner.partnerDisplayId || ("DELXp" + partner.partnerId.slice(0, 4).toUpperCase()) },
                       { label: "Auth UID", value: `${partner.partnerId.slice(0, 8)}...` },
                       { label: "Profile Structure", value: partner.partnerType.toUpperCase() },
                       { label: "Reward Rate Allocation", value: `${currencySymbol}${partner.rewardRate.toLocaleString()} / Verified Milestone` },
@@ -2092,7 +2107,7 @@ export default function Home() {
       {/* FOOTER */}
       <footer className="bg-slate-950 text-slate-600 py-6 text-center text-xs font-mono border-t border-slate-900/60 mt-16 z-10">
         <div className="max-w-7xl w-full mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <span>© {new Date().getFullYear()} Deloxe Inc. Unified Partner Security Registry.</span>
+          <span>© {new Date().getFullYear()} Deloxe Inc. Unified Referral Incentive Security Registry.</span>
           <span>Secured via Deloxe Private Ledger & Cryptographic Protocol.</span>
         </div>
       </footer>

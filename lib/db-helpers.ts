@@ -189,6 +189,49 @@ export interface ReferralClickDocument {
 // ------------------ Database Helper Functions ------------------
 
 /**
+ * Check if an email is already used by another partner in Firestore
+ */
+export async function isEmailRegisteredInPartners(email: string, excludePartnerId?: string): Promise<boolean> {
+  const path = "partners";
+  try {
+    const q = query(collection(db, "partners"), where("email", "==", email.trim()));
+    const querySnapshot = await getDocs(q);
+    let taken = false;
+    querySnapshot.forEach((docSnap) => {
+      if (!excludePartnerId || docSnap.id !== excludePartnerId) {
+        taken = true;
+      }
+    });
+    return taken;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, path);
+    return false;
+  }
+}
+
+/**
+ * Check if a partner name (fullName) is already linked to another email in Firestore
+ */
+export async function isNameRegisteredWithAnotherEmail(fullName: string, currentEmail: string): Promise<boolean> {
+  const path = "partners";
+  try {
+    const q = query(collection(db, "partners"), where("fullName", "==", fullName.trim()));
+    const querySnapshot = await getDocs(q);
+    let invalid = false;
+    querySnapshot.forEach((docSnap) => {
+      const partnerData = docSnap.data() as PartnerDocument;
+      if (partnerData.email && partnerData.email.trim().toLowerCase() !== currentEmail.trim().toLowerCase()) {
+        invalid = true;
+      }
+    });
+    return invalid;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, path);
+    return false;
+  }
+}
+
+/**
  * Fetch partner profile from firestore
  */
 export async function getPartnerProfile(partnerId: string): Promise<PartnerDocument | null> {
