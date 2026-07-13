@@ -6,7 +6,9 @@ import {
   GoogleAuthProvider, 
   signOut, 
   onAuthStateChanged,
-  User as FirebaseUser
+  User as FirebaseUser,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { 
@@ -204,6 +206,13 @@ export default function Home() {
   const [onboardingError, setOnboardingError] = useState("");
   const [submittingOnboarding, setSubmittingOnboarding] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  
+  // Email/Password Auth States
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authMethod, setAuthMethod] = useState<"google" | "email">("google");
+  const [authEmailMode, setAuthEmailMode] = useState<"signin" | "signup">("signin");
+  const [authEmailError, setAuthEmailError] = useState("");
   
   // Demo Mode (simulates live backend population for visualization)
   const [demoMode, setDemoMode] = useState(false);
@@ -446,6 +455,41 @@ export default function Home() {
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Authentication rejected:", error);
+      setLoading(false);
+    }
+  };
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthEmailError("");
+    setLoading(true);
+
+    if (!authEmail || !authPassword) {
+      setAuthEmailError("Please provide both email and password.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      if (authEmailMode === "signin") {
+        await signInWithEmailAndPassword(auth, authEmail, authPassword);
+      } else {
+        await createUserWithEmailAndPassword(auth, authEmail, authPassword);
+      }
+    } catch (error: any) {
+      console.error("Email auth error:", error);
+      let errMsg = "Authentication failed. Please verify your credentials.";
+      if (error.code === "auth/invalid-credential" || error.code === "auth/wrong-password" || error.code === "auth/user-not-found" || error.code === "auth/invalid-email") {
+        errMsg = "Invalid email or password. Please try again.";
+      } else if (error.code === "auth/email-already-in-use") {
+        errMsg = "This email is already in use. Please sign in instead.";
+      } else if (error.code === "auth/weak-password") {
+        errMsg = "Password is too weak. Must be at least 6 characters.";
+      } else {
+        errMsg = error.message || errMsg;
+      }
+      setAuthEmailError(errMsg);
+    } finally {
       setLoading(false);
     }
   };
@@ -738,21 +782,139 @@ export default function Home() {
             <div className="absolute top-0 right-0 w-[150px] h-[150px] bg-amber-500/5 rounded-full blur-[40px] pointer-events-none"></div>
             
             <h2 className="text-2xl font-bold font-display text-white mb-2">Access Portal</h2>
-            <p className="text-slate-400 text-sm mb-8">Sign in securely with your Google Credentials to proceed to onboarding or your active workspace.</p>
+            <p className="text-slate-400 text-sm mb-6">Sign in securely with your Google Credentials or Email to proceed to onboarding or your active workspace.</p>
 
-            <button
-              id="google-login-btn"
-              onClick={handleLogin}
-              className="w-full flex items-center justify-center gap-3 bg-white text-slate-950 font-sans font-bold py-3.5 px-5 rounded-xl hover:bg-slate-100 transition-all duration-200 active:scale-[0.98] shadow-lg shadow-white/5 cursor-pointer"
-            >
-              <svg className="w-5.5 h-5.5" viewBox="0 0 24 24">
-                <path
-                  fill="#EA4335"
-                  d="M12.24 10.285V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.866-3.577-7.866-8s3.536-8 7.866-8c2.46 0 4.105 1.025 5.047 1.926l3.247-3.135C18.428 1.152 15.534 0 12.24 0c-6.63 0-12 5.37-12 12s5.37 12 12 12c6.93 0 11.52-4.877 11.52-11.725 0-.788-.085-1.39-.188-1.99H12.24z"
-                />
-              </svg>
-              Google Account Gateway
-            </button>
+            {/* Tab switch for Auth Method */}
+            <div className="flex bg-[#050914] p-1 rounded-xl border border-slate-800/80 mb-6" id="auth-method-tabs">
+              <button
+                type="button"
+                id="auth-method-google-btn"
+                onClick={() => setAuthMethod("google")}
+                className={`flex-1 py-2 text-xs font-mono font-bold rounded-lg transition-all cursor-pointer ${
+                  authMethod === "google" 
+                    ? "bg-amber-500/15 text-amber-400 border border-amber-500/20" 
+                    : "text-slate-400 hover:text-slate-200 border border-transparent"
+                }`}
+              >
+                GOOGLE ACCOUNT
+              </button>
+              <button
+                type="button"
+                id="auth-method-email-btn"
+                onClick={() => setAuthMethod("email")}
+                className={`flex-1 py-2 text-xs font-mono font-bold rounded-lg transition-all cursor-pointer ${
+                  authMethod === "email" 
+                    ? "bg-amber-500/15 text-amber-400 border border-amber-500/20" 
+                    : "text-slate-400 hover:text-slate-200 border border-transparent"
+                }`}
+              >
+                EMAIL & PASSWORD
+              </button>
+            </div>
+
+            {authMethod === "google" ? (
+              <button
+                id="google-login-btn"
+                onClick={handleLogin}
+                className="w-full flex items-center justify-center gap-3 bg-white text-slate-950 font-sans font-bold py-3.5 px-5 rounded-xl hover:bg-slate-100 transition-all duration-200 active:scale-[0.98] shadow-lg shadow-white/5 cursor-pointer"
+              >
+                <svg className="w-5.5 h-5.5" viewBox="0 0 24 24">
+                  <path
+                    fill="#EA4335"
+                    d="M12.24 10.285V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.866-3.577-7.866-8s3.536-8 7.866-8c2.46 0 4.105 1.025 5.047 1.926l3.247-3.135C18.428 1.152 15.534 0 12.24 0c-6.63 0-12 5.37-12 12s5.37 12 12 12c6.93 0 11.52-4.877 11.52-11.725 0-.788-.085-1.39-.188-1.99H12.24z"
+                  />
+                </svg>
+                Google Account Gateway
+              </button>
+            ) : (
+              <form onSubmit={handleEmailAuth} className="space-y-4" id="email-auth-form">
+                {/* Mode toggle (Sign In vs Sign Up) */}
+                <div className="flex justify-end gap-4 text-xs font-mono mb-2">
+                  <button
+                    type="button"
+                    id="auth-mode-signin-btn"
+                    onClick={() => {
+                      setAuthEmailMode("signin");
+                      setAuthEmailError("");
+                    }}
+                    className={`pb-1 border-b transition-all cursor-pointer ${
+                      authEmailMode === "signin"
+                        ? "border-amber-500 text-amber-400 font-bold"
+                        : "border-transparent text-slate-500 hover:text-slate-300"
+                    }`}
+                  >
+                    SIGN IN
+                  </button>
+                  <button
+                    type="button"
+                    id="auth-mode-signup-btn"
+                    onClick={() => {
+                      setAuthEmailMode("signup");
+                      setAuthEmailError("");
+                    }}
+                    className={`pb-1 border-b transition-all cursor-pointer ${
+                      authEmailMode === "signup"
+                        ? "border-amber-500 text-amber-400 font-bold"
+                        : "border-transparent text-slate-500 hover:text-slate-300"
+                    }`}
+                  >
+                    CREATE ACCOUNT
+                  </button>
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 text-xs font-mono mb-1.5 uppercase tracking-wider">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    id="auth-email-input"
+                    required
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                    placeholder="name@company.com"
+                    className="w-full bg-[#050914] border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-sm focus:outline-none focus:border-amber-500/50 transition-colors font-sans"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 text-xs font-mono mb-1.5 uppercase tracking-wider">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    id="auth-password-input"
+                    required
+                    value={authPassword}
+                    onChange={(e) => setAuthPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full bg-[#050914] border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-sm focus:outline-none focus:border-amber-500/50 transition-colors font-mono"
+                  />
+                </div>
+
+                {authEmailError && (
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-2.5 text-xs text-red-400 font-sans" id="auth-error-display">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>{authEmailError}</span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  id="email-auth-submit-btn"
+                  disabled={loading}
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-sans font-bold py-3.5 px-5 rounded-xl hover:from-amber-400 hover:to-amber-500 transition-all duration-200 active:scale-[0.98] shadow-lg shadow-amber-500/15 cursor-pointer disabled:opacity-50"
+                >
+                  {loading ? (
+                    <span className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+                  ) : authEmailMode === "signin" ? (
+                    "Secure Account Login"
+                  ) : (
+                    "Create Partner Account"
+                  )}
+                </button>
+              </form>
+            )}
 
             {/* Security Notice */}
             <div className="mt-8 pt-6 border-t border-slate-800/80 flex items-start gap-3 text-slate-500 text-[11px] leading-relaxed font-mono">
@@ -1374,7 +1536,7 @@ export default function Home() {
                       <input
                         type="text"
                         readOnly
-                        value={`https://ecosystem.deloxehr.com${partner.trackingSlug}`}
+                        value={`https://referral.deloxehr.com${partner.trackingSlug}`}
                         className="bg-transparent flex-grow focus:outline-none select-all font-mono"
                       />
                       <button
@@ -1410,7 +1572,7 @@ export default function Home() {
                   <div className="w-32 h-32 bg-[#050914] rounded-xl border border-slate-800/80 flex items-center justify-center p-2 relative my-4">
                     <img 
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=f59e0b&bgcolor=050914&data=${encodeURIComponent(
-                        `https://ecosystem.deloxehr.com${partner.trackingSlug}`
+                        `https://referral.deloxehr.com${partner.trackingSlug}`
                       )}`}
                       alt="Referral QR Code" 
                       className="w-full h-full rounded"
