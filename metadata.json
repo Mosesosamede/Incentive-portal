@@ -1,0 +1,6 @@
+{
+  "name": "Deloxe HR Incentive & Referral Management System",
+  "description": "An advanced system to manage employee referrals, track referral statuses, and reward HR incentives with Firebase integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
