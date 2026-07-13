@@ -678,7 +678,7 @@ export default function Home() {
   // Copy Referral URL helper
   const handleCopy = () => {
     if (!partner) return;
-    const fullUrl = `${window.location.origin}${partner.trackingSlug}`;
+    const fullUrl = `https://ecosystem.deloxehr.com${partner.trackingSlug}`;
     navigator.clipboard.writeText(fullUrl);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
@@ -1536,7 +1536,7 @@ export default function Home() {
                       <input
                         type="text"
                         readOnly
-                        value={`https://referral.deloxehr.com${partner.trackingSlug}`}
+                        value={`https://ecosystem.deloxehr.com${partner.trackingSlug}`}
                         className="bg-transparent flex-grow focus:outline-none select-all font-mono"
                       />
                       <button
@@ -1572,7 +1572,7 @@ export default function Home() {
                   <div className="w-32 h-32 bg-[#050914] rounded-xl border border-slate-800/80 flex items-center justify-center p-2 relative my-4">
                     <img 
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=f59e0b&bgcolor=050914&data=${encodeURIComponent(
-                        `https://referral.deloxehr.com${partner.trackingSlug}`
+                        `https://ecosystem.deloxehr.com${partner.trackingSlug}`
                       )}`}
                       alt="Referral QR Code" 
                       className="w-full h-full rounded"
