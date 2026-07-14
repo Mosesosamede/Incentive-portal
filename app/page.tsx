@@ -148,8 +148,8 @@ export default function Home() {
           
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-slate-950 border border-amber-500/20 rounded-lg flex items-center justify-center font-mono font-bold text-amber-400 text-base shadow-lg shadow-amber-500/5">
-              DX
+            <div className="w-9 h-9 bg-slate-950 border border-amber-500/20 rounded-lg flex items-center justify-center overflow-hidden shadow-lg shadow-amber-500/5">
+              <img src="https://i.ibb.co/pjxqNW0p/favicon.png" alt="Deloxe HR Logo" className="w-7 h-7 object-contain" referrerPolicy="no-referrer" />
             </div>
             <div className="flex flex-col">
               <span className="font-display font-extrabold text-base tracking-tight text-white leading-none">

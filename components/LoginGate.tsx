@@ -67,8 +67,8 @@ export default function LoginGate({
       {/* Brand Header */}
       <header className="max-w-7xl w-full mx-auto px-6 py-6 flex justify-between items-center z-10" id="brand-header">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-slate-900 border border-amber-500/20 rounded-xl flex items-center justify-center font-mono font-bold text-amber-400 text-lg shadow-lg shadow-amber-500/10" id="brand-logo">
-            DX
+          <div className="w-10 h-10 bg-slate-900 border border-amber-500/20 rounded-xl flex items-center justify-center overflow-hidden shadow-lg shadow-amber-500/10" id="brand-logo">
+            <img src="https://i.ibb.co/pjxqNW0p/favicon.png" alt="Deloxe HR Logo" className="w-8 h-8 object-contain" referrerPolicy="no-referrer" />
           </div>
           <div className="flex flex-col">
             <span className="font-display font-bold text-lg tracking-tight bg-gradient-to-r from-amber-400 to-slate-100 bg-clip-text text-transparent" id="brand-name">

@@ -20,6 +20,9 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Deloxe HR Incentive & Referral System',
   description: 'Manage individual influencers, corporate partners, link tracking, commissions, and payouts.',
+  icons: {
+    icon: 'https://i.ibb.co/pjxqNW0p/favicon.png',
+  },
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {

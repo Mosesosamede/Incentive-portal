@@ -87,8 +87,8 @@ export default function OnboardingWizard({
         ) : (
           <>
             <div className="mb-8 text-center" id="onboarding-header">
-              <div className="w-12 h-12 bg-slate-900 border border-amber-500/20 rounded-xl flex items-center justify-center font-mono font-bold text-amber-400 text-xl shadow-lg shadow-amber-500/10 mx-auto mb-4">
-                DX
+              <div className="w-12 h-12 bg-slate-900 border border-amber-500/20 rounded-xl flex items-center justify-center overflow-hidden shadow-lg shadow-amber-500/10 mx-auto mb-4">
+                <img src="https://i.ibb.co/pjxqNW0p/favicon.png" alt="Deloxe HR Logo" className="w-10 h-10 object-contain" referrerPolicy="no-referrer" />
               </div>
               <h1 className="text-3xl font-display font-extrabold text-white">Referral Incentive Onboarding</h1>
               <p className="text-slate-400 text-xs font-mono mt-1 uppercase tracking-widest">Complete registration to activate tracking slugs</p>
