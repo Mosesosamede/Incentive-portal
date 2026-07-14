@@ -10,20 +10,15 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword
 } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { 
   getPartnerProfile, 
   createPartnerProfile, 
   initializePartnerStats, 
-  getPartnerStats, 
-  getPartnerCommissions, 
-  getPayouts, 
-  getNotifications, 
   updateNotificationReadStatus, 
   updatePartnerProfile, 
   testConnection,
   getRewardConfig,
-  seedPlaceholderDocuments,
   isEmailRegisteredInPartners,
   isNameRegisteredWithAnotherEmail,
   PartnerDocument,
@@ -32,7 +27,7 @@ import {
   PayoutDocument,
   NotificationDocument
 } from "@/lib/db-helpers";
-import { Timestamp } from "firebase/firestore";
+import { Timestamp, onSnapshot, collection, query, where, orderBy, doc } from "firebase/firestore";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   Users, 
@@ -208,6 +203,7 @@ export default function Home() {
   const [dbLoading, setDbLoading] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [onboardingError, setOnboardingError] = useState("");
+  const [existingAccountError, setExistingAccountError] = useState("");
   const [submittingOnboarding, setSubmittingOnboarding] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   
@@ -284,6 +280,7 @@ export default function Home() {
   // Monitor Auth State
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setExistingAccountError("");
       if (firebaseUser) {
         setUser(firebaseUser);
         try {
@@ -309,6 +306,18 @@ export default function Home() {
               payoutFrequency: profile.payoutFrequency || "weekly"
             });
           } else {
+            // Check if email already exists in Firestore partners collection
+            const email = firebaseUser.email;
+            if (email) {
+              const emailExists = await isEmailRegisteredInPartners(email, firebaseUser.uid);
+              if (emailExists) {
+                setExistingAccountError("An account already exists for this email. Please log in instead.");
+                setPartner(null);
+                setAuthChecking(false);
+                setLoading(false);
+                return;
+              }
+            }
             // First time registration prepopulate
             setObForm(prev => ({
               ...prev,
@@ -316,6 +325,7 @@ export default function Home() {
               email: firebaseUser.email || ""
             }));
             setPartner(null);
+            setExistingAccountError("");
           }
         } catch (error) {
           console.error("Error evaluating profile:", error);
@@ -327,6 +337,7 @@ export default function Home() {
         setCommissions([]);
         setPayouts([]);
         setNotifications([]);
+        setExistingAccountError("");
       }
       setAuthChecking(false);
       setLoading(false);
@@ -335,122 +346,80 @@ export default function Home() {
     return () => unsubscribe();
   }, []);
 
-  // Fetch Firestore Data based on current auth state and mode (Live vs Demo)
+  // Fetch Firestore Data in Real-time from shared collections
   useEffect(() => {
     if (!user || !partner) return;
 
-    if (demoMode) {
-      const loadDemoData = async () => {
-        await Promise.resolve(); // Forces asynchronous state setting
-        const isUsd = partner?.currency === "USD";
-        const isGbp = partner?.currency === "GBP";
-        const isEur = partner?.currency === "EUR";
-
-        const totalCommission = isUsd ? 79.20 : isGbp ? 65.74 : isEur ? 72.86 : 79200;
-        const totalPaid = isUsd ? 38.20 : isGbp ? 31.70 : isEur ? 35.14 : 38200;
-        const balance = isUsd ? 41.00 : isGbp ? 34.04 : isEur ? 37.72 : 41000;
-
-        setStats({
-          partnerId: user.uid,
-          totalClicks: 1420,
-          totalPurchases: 38,
-          totalCommission,
-          totalPaid,
-          balance,
-          nextPayout: Timestamp.fromDate(new Date(Date.now() + 5 * 24 * 60 * 60 * 1000)),
-          updatedAt: Timestamp.now()
-        });
-
-        const scaleComm = (amountPaid: number, commissionAmount: number) => {
-          if (isUsd) return { paid: amountPaid * 0.001, comm: commissionAmount * 0.001 };
-          if (isGbp) return { paid: amountPaid * 0.00083, comm: commissionAmount * 0.00083 };
-          if (isEur) return { paid: amountPaid * 0.00092, comm: commissionAmount * 0.00092 };
-          return { paid: amountPaid, comm: commissionAmount };
-        };
-
-        const comms = MOCK_COMMISSIONS(user.uid).map(c => {
-          const scaled = scaleComm(c.amountPaid, c.commissionAmount);
-          return {
-            ...c,
-            amountPaid: Number(scaled.paid.toFixed(2)),
-            commissionAmount: Number(scaled.comm.toFixed(2))
-          };
-        });
-        setCommissions(comms);
-
-        const payouts = MOCK_PAYOUTS(user.uid).map(p => {
-          const val = isUsd ? p.totalAmount * 0.001 : isGbp ? p.totalAmount * 0.00083 : isEur ? p.totalAmount * 0.00092 : p.totalAmount;
-          return {
-            ...p,
-            totalAmount: Number(val.toFixed(2))
-          };
-        });
-        setPayouts(payouts);
-
-        const sym = isUsd ? "$" : isGbp ? "£" : isEur ? "€" : "₦";
-        const notifs = MOCK_NOTIFICATIONS(user.uid).map(n => {
-          if (n.notificationId === "notif_002") {
-            const val = isUsd ? 4.50 : isGbp ? 3.73 : isEur ? 4.14 : 4500;
-            return {
-              ...n,
-              message: `A purchase (pur_9812) was successfully verified with your referral code. ${sym}${val.toLocaleString()} has been added to your ledger.`
-            };
-          }
-          if (n.notificationId === "notif_003") {
-            const val = isUsd ? 18.50 : isGbp ? 15.35 : isEur ? 17.02 : 18500;
-            return {
-              ...n,
-              message: `A weekly payout of ${sym}${val.toLocaleString()} is currently processing. Expected bank clearing within 24 hours.`
-            };
-          }
-          return n;
-        });
-        setNotifications(notifs);
-      };
-      loadDemoData();
-      return;
-    }
-
-    const loadData = async () => {
+    const timer = setTimeout(() => {
       setDbLoading(true);
-      try {
-        const queryId = user.uid;
-        let [fetchedStats, fetchedComms, fetchedPayouts, fetchedNotifs] = await Promise.all([
-          getPartnerStats(queryId),
-          getPartnerCommissions(queryId),
-          getPayouts(queryId),
-          getNotifications(queryId)
-        ]);
+    }, 0);
 
-        // Auto-seed collections if partner is active and has no commissions, payouts, or notifications
-        if (partner && fetchedComms.length === 0 && fetchedPayouts.length === 0 && fetchedNotifs.length === 0) {
-          try {
-            await seedPlaceholderDocuments(queryId, partner.referralCode);
-            // Re-fetch collections after seeding
-            [fetchedStats, fetchedComms, fetchedPayouts, fetchedNotifs] = await Promise.all([
-              getPartnerStats(queryId),
-              getPartnerCommissions(queryId),
-              getPayouts(queryId),
-              getNotifications(queryId)
-            ]);
-          } catch (seedErr) {
-            console.warn("Auto-seeding of collections skipped or failed:", seedErr);
-          }
-        }
-
-        setStats(fetchedStats);
-        setCommissions(fetchedComms);
-        setPayouts(fetchedPayouts);
-        setNotifications(fetchedNotifs);
-      } catch (err) {
-        console.error("Error reading from Firestore:", err);
-      } finally {
-        setDbLoading(false);
+    const statsRef = doc(db, "partner_stats", user.uid);
+    const unsubStats = onSnapshot(statsRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setStats(docSnap.data() as PartnerStatsDocument);
+      } else {
+        setStats(null);
       }
-    };
+      setDbLoading(false);
+    }, (err) => {
+      console.error("Stats subscription error:", err);
+      setDbLoading(false);
+    });
 
-    loadData();
-  }, [user, partner, demoMode]);
+    const commissionsQuery = query(
+      collection(db, "partner_commissions"),
+      where("partnerId", "==", user.uid),
+      orderBy("createdAt", "desc")
+    );
+    const unsubCommissions = onSnapshot(commissionsQuery, (snapshot) => {
+      const list: PartnerCommissionDocument[] = [];
+      snapshot.forEach((docSnap) => {
+        list.push({ commissionId: docSnap.id, ...docSnap.data() } as PartnerCommissionDocument);
+      });
+      setCommissions(list);
+    }, (err) => {
+      console.error("Commissions subscription error:", err);
+    });
+
+    const payoutsQuery = query(
+      collection(db, "payouts"),
+      where("partnerId", "==", user.uid),
+      orderBy("paidAt", "desc")
+    );
+    const unsubPayouts = onSnapshot(payoutsQuery, (snapshot) => {
+      const list: PayoutDocument[] = [];
+      snapshot.forEach((docSnap) => {
+        list.push({ payoutId: docSnap.id, ...docSnap.data() } as PayoutDocument);
+      });
+      setPayouts(list);
+    }, (err) => {
+      console.error("Payouts subscription error:", err);
+    });
+
+    const notificationsQuery = query(
+      collection(db, "notifications"),
+      where("partnerId", "==", user.uid),
+      orderBy("createdAt", "desc")
+    );
+    const unsubNotifications = onSnapshot(notificationsQuery, (snapshot) => {
+      const list: NotificationDocument[] = [];
+      snapshot.forEach((docSnap) => {
+        list.push({ notificationId: docSnap.id, ...docSnap.data() } as NotificationDocument);
+      });
+      setNotifications(list);
+    }, (err) => {
+      console.error("Notifications subscription error:", err);
+    });
+
+    return () => {
+      clearTimeout(timer);
+      unsubStats();
+      unsubCommissions();
+      unsubPayouts();
+      unsubNotifications();
+    };
+  }, [user, partner]);
 
   // Auth Operations
   const handleLogin = async () => {
@@ -552,7 +521,7 @@ export default function Home() {
       // Check if email already exists in Firestore
       const emailExists = await isEmailRegisteredInPartners(email);
       if (emailExists) {
-        setOnboardingError(`The email address "${email}" is already registered to a partner account.`);
+        setOnboardingError("An account already exists for this email. Please log in instead.");
         setSubmittingOnboarding(false);
         return;
       }
@@ -573,8 +542,8 @@ export default function Home() {
       const suffix = Math.random().toString(36).substring(2, 5).toUpperCase();
       const referralCode = `${namePart}${suffix}`;
 
-      // 2. Generate Tracking Slug (e.g. /register?ref=MOSES91)
-      const trackingSlug = `/register?ref=${referralCode}`;
+      // 2. Generate Tracking Slug (e.g. /?ref=MOSES91)
+      const trackingSlug = `/?ref=${referralCode}`;
 
       // 3. Set reward rates and currency dynamic config based on country selection
       const rewardConfig = getRewardConfig(obForm.country, partnerType);
@@ -609,10 +578,9 @@ export default function Home() {
         agreementAccepted
       };
 
-      // Create profile and initialize stats and seed collections
+      // Create profile and initialize stats
       await createPartnerProfile(payload);
       await initializePartnerStats(user.uid);
-      await seedPlaceholderDocuments(user.uid, referralCode);
 
       // Reload
       const profile = await getPartnerProfile(user.uid);
@@ -714,7 +682,7 @@ export default function Home() {
   // Copy Referral URL helper
   const handleCopy = () => {
     if (!partner) return;
-    const fullUrl = `https://ecosystem.deloxehr.com${partner.trackingSlug}`;
+    const fullUrl = `https://ecosystem.deloxehr.com/?ref=${partner.referralCode}`;
     navigator.clipboard.writeText(fullUrl);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
@@ -998,17 +966,35 @@ export default function Home() {
         </div>
 
         {/* Main Content */}
-        <main className="max-w-2xl w-full mx-auto px-6 py-12 z-10 flex-grow flex flex-col justify-center">
-          <div className="mb-8 text-center">
-            <div className="w-12 h-12 bg-slate-900 border border-amber-500/20 rounded-xl flex items-center justify-center font-mono font-bold text-amber-400 text-xl shadow-lg shadow-amber-500/10 mx-auto mb-4">
-              DX
-            </div>
-            <h1 className="text-3xl font-display font-extrabold text-white">Referral Incentive Onboarding</h1>
-            <p className="text-slate-400 text-xs font-mono mt-1 uppercase tracking-widest">Complete registration to activate tracking slugs</p>
-          </div>
+        <main className="max-w-2xl w-full mx-auto px-6 py-12 z-10 flex-grow flex flex-col justify-center font-sans">
+          {existingAccountError ? (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-[#080d1a] border border-red-500/30 rounded-2xl p-8 text-center max-w-md mx-auto shadow-2xl">
+              <div className="w-16 h-16 bg-red-500/10 border border-red-500/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                <AlertCircle className="w-8 h-8 text-red-400" />
+              </div>
+              <h2 className="text-xl font-display font-bold text-white mb-3">Onboarding Blocked</h2>
+              <p className="text-slate-400 text-sm leading-relaxed mb-6 font-mono">
+                {existingAccountError}
+              </p>
+              <button
+                onClick={handleLogout}
+                className="px-6 py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 text-xs font-bold hover:bg-slate-800 hover:border-slate-700 transition cursor-pointer font-mono"
+              >
+                Go back to Login
+              </button>
+            </motion.div>
+          ) : (
+            <>
+              <div className="mb-8 text-center">
+                <div className="w-12 h-12 bg-slate-900 border border-amber-500/20 rounded-xl flex items-center justify-center font-mono font-bold text-amber-400 text-xl shadow-lg shadow-amber-500/10 mx-auto mb-4">
+                  DX
+                </div>
+                <h1 className="text-3xl font-display font-extrabold text-white">Referral Incentive Onboarding</h1>
+                <p className="text-slate-400 text-xs font-mono mt-1 uppercase tracking-widest">Complete registration to activate tracking slugs</p>
+              </div>
 
-          {/* Stepper Indicators */}
-          <div className="grid grid-cols-4 gap-2 mb-10 text-center font-mono text-[10px]">
+              {/* Stepper Indicators */}
+              <div className="grid grid-cols-4 gap-2 mb-10 text-center font-mono text-[10px]">
             {[
               { label: "INCENTIVE TYPE", step: 1 },
               { label: "PROFILE INFO", step: 2 },
@@ -1369,6 +1355,8 @@ export default function Home() {
               </div>
             </form>
           </div>
+          </>
+          )}
         </main>
       </div>
     );
@@ -1551,7 +1539,7 @@ export default function Home() {
                       <input
                         type="text"
                         readOnly
-                        value={`https://ecosystem.deloxehr.com${partner.trackingSlug}`}
+                        value={`https://ecosystem.deloxehr.com/?ref=${partner.referralCode}`}
                         className="bg-transparent flex-grow focus:outline-none select-all font-mono"
                       />
                       <button
@@ -1569,7 +1557,7 @@ export default function Home() {
 
                     <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-mono">
                       <Info className="w-3.5 h-3.5 text-amber-500/70" />
-                      <span>Tracking Slug matches: {partner.trackingSlug}</span>
+                      <span>Tracking Slug matches: /?ref={partner.referralCode}</span>
                     </div>
                   </div>
                 </div>
@@ -1587,7 +1575,7 @@ export default function Home() {
                   <div className="w-32 h-32 bg-[#050914] rounded-xl border border-slate-800/80 flex items-center justify-center p-2 relative my-4">
                     <img 
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=f59e0b&bgcolor=050914&data=${encodeURIComponent(
-                        `https://ecosystem.deloxehr.com${partner.trackingSlug}`
+                        `https://ecosystem.deloxehr.com/?ref=${partner.referralCode}`
                       )}`}
                       alt="Referral QR Code" 
                       className="w-full h-full rounded"
