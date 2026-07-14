@@ -49,9 +49,9 @@ export default function SettingsTab({
       id="settings-tab"
     >
       {/* Profile Config Form */}
-      <div className="lg:col-span-2 p-6 rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur shadow-xl" id="edit-preferences-card">
-        <h3 className="font-display font-bold text-base text-slate-100 mb-2">Edit Preferences</h3>
-        <p className="text-xs text-slate-400 mb-6 leading-relaxed">Update your contact profile and financial routing records instantly. All writes adhere strictly to security filters.</p>
+      <div className="lg:col-span-2 p-6 rounded-2xl bg-[#23312C]/40 border border-[#DAF0DD]/15 backdrop-blur shadow-xl" id="edit-preferences-card">
+        <h3 className="font-display font-bold text-base text-[#DAF0DD] mb-2">Edit Preferences</h3>
+        <p className="text-xs text-[#DAF0DD]/60 mb-6 leading-relaxed">Update your contact profile and financial routing records instantly. All writes adhere strictly to security filters.</p>
 
         <form onSubmit={handleProfileUpdate} className="flex flex-col gap-5" id="profile-edit-form">
           {editError && (
@@ -60,31 +60,31 @@ export default function SettingsTab({
             </div>
           )}
           {editSuccess && (
-            <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs font-mono" id="edit-success-display">
+            <div className="p-3 bg-emerald-500/10 border border-[#00CC88]/20 rounded-xl text-[#00CC88] text-xs font-mono" id="edit-success-display">
               {editSuccess}
             </div>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-400">Full Legal Name *</label>
+              <label className="text-xs font-semibold text-[#DAF0DD]/70">Full Legal Name *</label>
               <input
                 type="text"
                 required
                 value={editForm.fullName}
                 onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
-                className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500/60"
+                className="p-3 bg-[#131b19] border border-[#DAF0DD]/20 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/60"
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-400">Contact Email *</label>
+              <label className="text-xs font-semibold text-[#DAF0DD]/50">Contact Email *</label>
               <input
                 type="email"
                 required
                 disabled
                 value={editForm.email}
-                className="p-3 bg-slate-950/50 border border-slate-900 rounded-xl text-xs text-slate-500 focus:outline-none cursor-not-allowed"
+                className="p-3 bg-[#131b19]/50 border border-[#DAF0DD]/10 rounded-xl text-xs text-[#DAF0DD]/40 focus:outline-none cursor-not-allowed"
               />
             </div>
           </div>
@@ -92,33 +92,33 @@ export default function SettingsTab({
           {partner.partnerType === "corporate" && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4" id="corporate-edit-fields">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-400">Company Name *</label>
+                <label className="text-xs font-semibold text-[#DAF0DD]/70">Company Name *</label>
                 <input
                   type="text"
                   required
                   value={editForm.companyName}
                   onChange={(e) => setEditForm({ ...editForm, companyName: e.target.value })}
-                  className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500/60"
+                  className="p-3 bg-[#131b19] border border-[#DAF0DD]/20 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/60"
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-400">Representative Name *</label>
+                <label className="text-xs font-semibold text-[#DAF0DD]/70">Representative Name *</label>
                 <input
                   type="text"
                   required
                   value={editForm.representativeName}
                   onChange={(e) => setEditForm({ ...editForm, representativeName: e.target.value })}
-                  className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500/60"
+                  className="p-3 bg-[#131b19] border border-[#DAF0DD]/20 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/60"
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-400">Representative Title *</label>
+                <label className="text-xs font-semibold text-[#DAF0DD]/70">Representative Title *</label>
                 <input
                   type="text"
                   required
                   value={editForm.representativeTitle}
                   onChange={(e) => setEditForm({ ...editForm, representativeTitle: e.target.value })}
-                  className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500/60"
+                  className="p-3 bg-[#131b19] border border-[#DAF0DD]/20 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/60"
                 />
               </div>
             </div>
@@ -126,74 +126,74 @@ export default function SettingsTab({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-400">Mobile Phone Number *</label>
+              <label className="text-xs font-semibold text-[#DAF0DD]/70">Mobile Phone Number *</label>
               <input
                 type="tel"
                 required
                 value={editForm.phone}
                 onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500/60"
+                className="p-3 bg-[#131b19] border border-[#DAF0DD]/20 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/60"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-400">Social Media handle *</label>
+              <label className="text-xs font-semibold text-[#DAF0DD]/70">Social Media handle *</label>
               <input
                 type="text"
                 required
                 value={editForm.socialHandle}
                 onChange={(e) => setEditForm({ ...editForm, socialHandle: e.target.value })}
-                className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500/60"
+                className="p-3 bg-[#131b19] border border-[#DAF0DD]/20 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/60"
               />
             </div>
           </div>
 
-          <div className="p-4 bg-slate-950/40 rounded-xl border border-slate-800/80 flex flex-col gap-4" id="financial-settlements-box">
-            <h4 className="font-display font-semibold text-xs text-slate-300">Financial Settlements Routing</h4>
+          <div className="p-4 bg-[#131b19]/40 rounded-xl border border-[#DAF0DD]/15 flex flex-col gap-4" id="financial-settlements-box">
+            <h4 className="font-display font-semibold text-xs text-[#DAF0DD]">Financial Settlements Routing</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-semibold text-slate-400 font-mono">Bank Name</label>
+                <label className="text-[10px] font-semibold text-[#DAF0DD]/60 font-mono">Bank Name</label>
                 <input
                   type="text"
                   required
                   value={editForm.bankName}
                   onChange={(e) => setEditForm({ ...editForm, bankName: e.target.value })}
-                  className="p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:border-amber-500/60"
+                  className="p-2.5 bg-[#131b19] border border-[#DAF0DD]/20 rounded-lg text-xs text-white focus:outline-none focus:border-[#00CC88]/60"
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-semibold text-slate-400 font-mono">Account Number</label>
+                <label className="text-[10px] font-semibold text-[#DAF0DD]/60 font-mono">Account Number</label>
                 <input
                   type="text"
                   required
                   maxLength={10}
                   value={editForm.accountNumber}
                   onChange={(e) => setEditForm({ ...editForm, accountNumber: e.target.value })}
-                  className="p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:border-amber-500/60 font-mono"
+                  className="p-2.5 bg-[#131b19] border border-[#DAF0DD]/20 rounded-lg text-xs text-white focus:outline-none focus:border-[#00CC88]/60 font-mono"
                 />
               </div>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-semibold text-slate-400 font-mono">Account Name</label>
+              <label className="text-[10px] font-semibold text-[#DAF0DD]/60 font-mono">Account Name</label>
               <input
                 type="text"
                 required
                 value={editForm.accountName}
                 onChange={(e) => setEditForm({ ...editForm, accountName: e.target.value })}
-                className="p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:border-amber-500/60"
+                className="p-2.5 bg-[#131b19] border border-[#DAF0DD]/20 rounded-lg text-xs text-white focus:outline-none focus:border-[#00CC88]/60"
               />
             </div>
 
             <div className="flex flex-col gap-1 mt-1">
-              <label className="text-[10px] font-semibold text-slate-400 font-mono">Payout Settlement Frequency</label>
+              <label className="text-[10px] font-semibold text-[#DAF0DD]/60 font-mono">Payout Settlement Frequency</label>
               <div className="grid grid-cols-2 gap-3 mt-1 font-mono text-[11px]">
                 <button
                   type="button"
                   id="settings-payout-weekly"
                   onClick={() => setEditForm({ ...editForm, payoutFrequency: "weekly" })}
-                  className={`p-2.5 rounded-lg border font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  className={`p-2.5 rounded-lg border font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     editForm.payoutFrequency === "weekly"
-                      ? "bg-amber-500/10 border-amber-500/60 text-amber-400"
-                      : "bg-slate-950 border-slate-800 text-slate-500"
+                      ? "bg-[#00CC88]/10 border-[#00CC88]/60 text-[#00CC88]"
+                      : "bg-[#131b19] border border-[#DAF0DD]/15 text-[#DAF0DD]/50"
                   }`}
                 >
                   WEEKLY
@@ -202,10 +202,10 @@ export default function SettingsTab({
                   type="button"
                   id="settings-payout-monthly"
                   onClick={() => setEditForm({ ...editForm, payoutFrequency: "monthly" })}
-                  className={`p-2.5 rounded-lg border font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  className={`p-2.5 rounded-lg border font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     editForm.payoutFrequency === "monthly"
-                      ? "bg-amber-500/10 border-amber-500/60 text-amber-400"
-                      : "bg-slate-950 border-slate-800 text-slate-500"
+                      ? "bg-[#00CC88]/10 border-[#00CC88]/60 text-[#00CC88]"
+                      : "bg-[#131b19] border border-[#DAF0DD]/15 text-[#DAF0DD]/50"
                   }`}
                 >
                   MONTHLY
@@ -218,7 +218,7 @@ export default function SettingsTab({
             type="submit"
             id="settings-save-btn"
             disabled={editLoading}
-            className="w-fit px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-sans font-bold text-xs transition active:scale-[0.98] cursor-pointer disabled:opacity-50"
+            className="w-fit px-6 py-2.5 rounded-xl bg-[#00CC88] hover:bg-[#00CC88]/90 text-[#1A2421] font-sans font-bold text-xs transition active:scale-[0.98] cursor-pointer disabled:opacity-50"
           >
             {editLoading ? "Saving Updates..." : "Save Preferences"}
           </button>
@@ -226,17 +226,17 @@ export default function SettingsTab({
       </div>
 
       {/* Immutable Security Parameters Card */}
-      <div className="p-6 rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur shadow-xl relative overflow-hidden flex flex-col justify-between" id="immutable-ledger-card">
+      <div className="p-6 rounded-2xl bg-[#23312C]/40 border border-[#DAF0DD]/15 backdrop-blur shadow-xl relative overflow-hidden flex flex-col justify-between" id="immutable-ledger-card">
         <div>
-          <div className="flex items-center gap-2 mb-4 text-rose-400">
+          <div className="flex items-center gap-2 mb-4 text-[#00CC88]">
             <Lock className="w-4.5 h-4.5" />
-            <h3 className="font-display font-bold text-sm text-slate-100">Locked Ledger Profiles</h3>
+            <h3 className="font-display font-bold text-sm text-[#DAF0DD]">Locked Ledger Profiles</h3>
           </div>
-          <p className="text-slate-400 text-xs leading-relaxed mb-6">
+          <p className="text-[#DAF0DD]/60 text-xs leading-relaxed mb-6">
             To maintain transactional auditing safety and prevent privilege fraud, the following parameters are strictly read-only and locked at the database rule layer.
           </p>
 
-          <div className="flex flex-col gap-3 font-mono text-[11px] text-slate-400">
+          <div className="flex flex-col gap-3 font-mono text-[11px] text-[#DAF0DD]/80">
             {[
               { label: "Referral Incentive ID", value: partner.partnerDisplayId || ("DELXp" + partner.partnerId.slice(0, 4).toUpperCase()) },
               { label: "Auth UID", value: `${partner.partnerId.slice(0, 8)}...` },
@@ -246,16 +246,16 @@ export default function SettingsTab({
               { label: "Agreement Signature", value: "ACCEPTED" },
               { label: "Signed DateTime", value: formatDate(partner.agreementSignedAt) }
             ].map((item, idx) => (
-              <div key={idx} className="p-2.5 rounded-lg bg-slate-950/40 border border-slate-850 flex justify-between items-center" id={`locked-item-${idx}`}>
-                <span className="text-slate-500 text-[10px] uppercase">{item.label}</span>
-                <span className="font-semibold text-slate-300 tracking-tight">{item.value}</span>
+              <div key={idx} className="p-2.5 rounded-lg bg-[#131b19]/40 border border-[#DAF0DD]/10 flex justify-between items-center" id={`locked-item-${idx}`}>
+                <span className="text-[#DAF0DD]/50 text-[10px] uppercase">{item.label}</span>
+                <span className="font-semibold text-[#DAF0DD] tracking-tight">{item.value}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="mt-8 p-3 bg-slate-950/50 rounded-xl border border-slate-800/60 flex items-start gap-2.5 text-slate-500 text-[10px] leading-relaxed font-mono" id="crypto-notice">
-          <Shield className="w-4.5 h-4.5 text-amber-500/70 shrink-0 mt-0.5" />
+        <div className="mt-8 p-3 bg-[#131b19]/50 rounded-xl border border-[#DAF0DD]/10 flex items-start gap-2.5 text-[#DAF0DD]/50 text-[10px] leading-relaxed font-mono" id="crypto-notice">
+          <Shield className="w-4.5 h-4.5 text-[#00CC88]/70 shrink-0 mt-0.5" />
           <span>These parameters are cryptographically secured and managed directly by the ledger protocol. Client modifications are rejected.</span>
         </div>
       </div>

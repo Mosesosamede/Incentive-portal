@@ -5,16 +5,12 @@
   --font-display: var(--font-display), var(--font-sans), sans-serif;
   --font-mono: var(--font-mono), ui-monospace, monospace;
 
-  /* Custom palette for Deloxe HR */
-  --color-brand-50: #f0fdf4;
-  --color-brand-100: #dcfce7;
-  --color-brand-500: #10b981;
-  --color-brand-600: #059669;
-  --color-brand-700: #047857;
-  --color-brand-900: #064e3b;
-
-  --color-accent-500: #3b82f6;
-  --color-accent-600: #2563eb;
-  --color-accent-700: #1d4ed8;
+  /* Custom brand palette for Deloxe HR */
+  --color-brand-primary: #00CC88;
+  --color-brand-white: #FFFFFF;
+  --color-brand-bg: #1A2421;
+  --color-brand-accent: #F7F167;
+  --color-brand-card: #23312C;
+  --color-brand-text-pale: #DAF0DD;
 }
 
