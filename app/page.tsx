@@ -526,14 +526,6 @@ export default function Home() {
         return;
       }
 
-      // Check if full name is linked to another email in Firestore
-      const nameInvalid = await isNameRegisteredWithAnotherEmail(fullName, email);
-      if (nameInvalid) {
-        setOnboardingError(`The name "${fullName}" is linked to a different email account. Please use a unique full name.`);
-        setSubmittingOnboarding(false);
-        return;
-      }
-
       // 1. Auto-generate Uppercase Referral Code (e.g. MOSES91, DELOXE73)
       const rawBase = (partnerType === "corporate" ? companyName : fullName)
         .replace(/[^a-zA-Z0-9]/g, "")
@@ -622,22 +614,6 @@ export default function Home() {
     }
 
     try {
-      // Check if email already exists on another account in Firestore
-      const emailExists = await isEmailRegisteredInPartners(editForm.email, user.uid);
-      if (emailExists) {
-        setEditError(`The email address "${editForm.email}" is already registered to another partner account.`);
-        setEditLoading(false);
-        return;
-      }
-
-      // Check if full name is linked to another email in Firestore
-      const nameInvalid = await isNameRegisteredWithAnotherEmail(editForm.fullName, editForm.email);
-      if (nameInvalid) {
-        setEditError(`The name "${editForm.fullName}" is linked to a different email account. Please use a unique full name.`);
-        setEditLoading(false);
-        return;
-      }
-
       await updatePartnerProfile(user.uid, {
         fullName: editForm.fullName,
         companyName: partner.partnerType === "corporate" ? editForm.companyName : null,
@@ -1144,13 +1120,13 @@ export default function Home() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="flex flex-col gap-1">
-                        <label className="text-xs font-semibold text-slate-300">Primary Contact Email *</label>
+                        <label className="text-xs font-semibold text-slate-400">Primary Contact Email *</label>
                         <input
                           type="email"
                           required
+                          disabled
                           value={obForm.email}
-                          onChange={(e) => setObForm({ ...obForm, email: e.target.value })}
-                          className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500/60"
+                          className="p-3 bg-slate-950/50 border border-slate-900 rounded-xl text-xs text-slate-500 focus:outline-none cursor-not-allowed"
                           placeholder="partner@example.com"
                         />
                       </div>
@@ -1912,9 +1888,9 @@ export default function Home() {
                       <input
                         type="email"
                         required
+                        disabled
                         value={editForm.email}
-                        onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                        className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500/60"
+                        className="p-3 bg-slate-950/50 border border-slate-900 rounded-xl text-xs text-slate-500 focus:outline-none cursor-not-allowed"
                       />
                     </div>
                   </div>

@@ -87,7 +87,7 @@ service cloud.firestore {
     // Collection: partners
     match /partners/{partnerId} {
       allow get: if isSignedIn() && request.auth.uid == partnerId;
-      allow list: if isSignedIn() && resource.data.partnerId == request.auth.uid;
+      allow list: if isSignedIn() && (resource.data.partnerId == request.auth.uid || resource.data.email == request.auth.token.email);
       allow create: if isSignedIn() && request.auth.uid == partnerId && isValidId(partnerId) && isValidPartner(incoming()) && incoming().createdAt == request.time && incoming().updatedAt == request.time;
       allow update: if isSignedIn() && request.auth.uid == partnerId && isValidId(partnerId) && isValidPartner(incoming()) 
         && incoming().updatedAt == request.time
