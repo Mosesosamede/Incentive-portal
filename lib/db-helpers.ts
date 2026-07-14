@@ -453,6 +453,16 @@ export async function seedPlaceholderDocuments(partnerId: string, referralCode: 
     createdAt: serverTimestamp() as any
   };
 
+  const referralClickNotifId = `notif_click_${partnerId.slice(0, 5)}`;
+  const referralClickNotifDoc: NotificationDocument = {
+    notificationId: referralClickNotifId,
+    partnerId,
+    title: "New Referral CLick",
+    message: "Someone visited your referral link from NG using Chrome on Desktop.",
+    read: false,
+    createdAt: serverTimestamp() as any
+  };
+
   // 4. referral_clicks
   const clickId = `click_placeholder_${partnerId.slice(0, 5)}`;
   const referralClickDoc: ReferralClickDocument = {
@@ -472,6 +482,7 @@ export async function seedPlaceholderDocuments(partnerId: string, referralCode: 
       setDoc(doc(db, "partner_commissions", commissionId), commissionDoc),
       setDoc(doc(db, "payouts", payoutId), payoutDoc),
       setDoc(doc(db, "notifications", notificationId), notificationDoc),
+      setDoc(doc(db, "notifications", referralClickNotifId), referralClickNotifDoc),
       setDoc(doc(db, "referral_clicks", clickId), referralClickDoc)
     ]);
   } catch (error) {

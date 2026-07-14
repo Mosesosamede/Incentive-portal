@@ -15,6 +15,7 @@ import {
   getPartnerProfile, 
   createPartnerProfile, 
   initializePartnerStats, 
+  seedPlaceholderDocuments,
   updateNotificationReadStatus, 
   updatePartnerProfile, 
   testConnection,
@@ -198,14 +199,26 @@ export function usePartner() {
 
     const commissionsQuery = query(
       collection(db, "partner_commissions"),
-      where("partnerId", "==", user.uid),
-      orderBy("createdAt", "desc")
+      where("partnerId", "==", user.uid)
     );
     const unsubCommissions = onSnapshot(commissionsQuery, (snapshot) => {
       const list: PartnerCommissionDocument[] = [];
       snapshot.forEach((docSnap) => {
         list.push({ commissionId: docSnap.id, ...docSnap.data() } as PartnerCommissionDocument);
       });
+      
+      // Sort in-memory descending by createdAt to avoid composite index requirements
+      list.sort((a, b) => {
+        const getVal = (v: any) => {
+          if (!v) return 0;
+          if (typeof v.seconds === 'number') return v.seconds;
+          if (v instanceof Date) return v.getTime();
+          if (typeof v === 'string' || typeof v === 'number') return new Date(v).getTime();
+          return 0;
+        };
+        return getVal(b.createdAt) - getVal(a.createdAt);
+      });
+
       setCommissions(list);
     }, (err) => {
       console.error("Commissions subscription error:", err);
@@ -213,14 +226,26 @@ export function usePartner() {
 
     const payoutsQuery = query(
       collection(db, "payouts"),
-      where("partnerId", "==", user.uid),
-      orderBy("paidAt", "desc")
+      where("partnerId", "==", user.uid)
     );
     const unsubPayouts = onSnapshot(payoutsQuery, (snapshot) => {
       const list: PayoutDocument[] = [];
       snapshot.forEach((docSnap) => {
         list.push({ payoutId: docSnap.id, ...docSnap.data() } as PayoutDocument);
       });
+
+      // Sort in-memory descending by paidAt to avoid composite index requirements
+      list.sort((a, b) => {
+        const getVal = (v: any) => {
+          if (!v) return 0;
+          if (typeof v.seconds === 'number') return v.seconds;
+          if (v instanceof Date) return v.getTime();
+          if (typeof v === 'string' || typeof v === 'number') return new Date(v).getTime();
+          return 0;
+        };
+        return getVal(b.paidAt) - getVal(a.paidAt);
+      });
+
       setPayouts(list);
     }, (err) => {
       console.error("Payouts subscription error:", err);
@@ -228,15 +253,37 @@ export function usePartner() {
 
     const notificationsQuery = query(
       collection(db, "notifications"),
-      where("partnerId", "==", user.uid),
-      orderBy("createdAt", "desc")
+      where("partnerId", "==", user.uid)
     );
     const unsubNotifications = onSnapshot(notificationsQuery, (snapshot) => {
       const list: NotificationDocument[] = [];
       snapshot.forEach((docSnap) => {
         list.push({ notificationId: docSnap.id, ...docSnap.data() } as NotificationDocument);
       });
+
+      // Sort in-memory descending by createdAt to avoid composite index requirements
+      list.sort((a, b) => {
+        const getVal = (v: any) => {
+          if (!v) return 0;
+          if (typeof v.seconds === 'number') return v.seconds;
+          if (v instanceof Date) return v.getTime();
+          if (typeof v === 'string' || typeof v === 'number') return new Date(v).getTime();
+          return 0;
+        };
+        return getVal(b.createdAt) - getVal(a.createdAt);
+      });
+
       setNotifications(list);
+
+      // Check if any old notifications exist for the user before seeding placeholders
+      if (snapshot.empty && partner && partner.referralCode) {
+        console.log("No old notifications found. Seeding initial placeholders for real-time demonstration.");
+        seedPlaceholderDocuments(user.uid, partner.referralCode).catch((err) => {
+          console.error("Auto-seeding placeholder documents failed:", err);
+        });
+      } else {
+        console.log("Old notifications already exist for this user. Skipping placeholder seeding.");
+      }
     }, (err) => {
       console.error("Notifications subscription error:", err);
     });
@@ -393,6 +440,7 @@ export function usePartner() {
 
       await createPartnerProfile(payload);
       await initializePartnerStats(user.uid);
+      await seedPlaceholderDocuments(user.uid, referralCode);
 
       const profile = await getPartnerProfile(user.uid);
       if (profile) {
