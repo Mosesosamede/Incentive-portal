@@ -102,6 +102,34 @@ function formatDate(val: any): string {
   return "—";
 }
 
+// Safe date-time formatter to handle native Firestore Timestamps and show time for Alerts/Notifications
+function formatDateTime(val: any): string {
+  if (!val) return "—";
+  let dateObj: Date;
+  if (val && typeof val.toDate === "function") {
+    dateObj = val.toDate();
+  } else if (val instanceof Date) {
+    dateObj = val;
+  } else if (val && val.seconds !== undefined) {
+    dateObj = new Date(val.seconds * 1000);
+  } else {
+    dateObj = new Date(val);
+  }
+
+  if (isNaN(dateObj.getTime())) return "—";
+
+  return dateObj.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  }) + " at " + dateObj.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true
+  });
+}
+
 // Highly stylized realistic mock data for Demonstration Mode
 const MOCK_COMMISSIONS = (partnerId: string): PartnerCommissionDocument[] => [
   {
@@ -1824,7 +1852,7 @@ export default function Home() {
                             )}
                           </div>
                           <p className="text-xs text-slate-400 mt-1 leading-relaxed">{notif.message}</p>
-                          <span className="text-[9px] font-mono text-slate-600 mt-2 block">{formatDate(notif.createdAt)}</span>
+                          <span className="text-[9px] font-mono text-slate-600 mt-2 block">{formatDateTime(notif.createdAt)}</span>
                         </div>
                       </div>
 
