@@ -8,7 +8,8 @@ import {
   CreditCard, 
   Bell, 
   Settings, 
-  LogOut 
+  LogOut,
+  Share2
 } from "lucide-react";
 
 import { usePartner } from "@/hooks/usePartner";
@@ -20,6 +21,8 @@ import CommissionsTab from "@/components/CommissionsTab";
 import PayoutsTab from "@/components/PayoutsTab";
 import NotificationsTab from "@/components/NotificationsTab";
 import SettingsTab from "@/components/SettingsTab";
+import ReferralMaterialsTab from "@/components/ReferralMaterialsTab";
+import DashboardTour from "@/components/DashboardTour";
 
 export default function Home() {
   const {
@@ -165,6 +168,7 @@ export default function Home() {
               { id: "dashboard", label: "Overview", icon: Grid },
               { id: "commissions", label: "Commissions", icon: DollarSign },
               { id: "payouts", label: "Payouts Ledger", icon: CreditCard },
+              { id: "materials", label: "Promo Materials", icon: Share2 },
               { id: "notifications", label: "Alerts", icon: Bell, count: notifications.filter(n => !n.read).length },
               { id: "settings", label: "Settings", icon: Settings }
             ].map((tab) => {
@@ -219,6 +223,7 @@ export default function Home() {
             { id: "dashboard", label: "Overview", icon: Grid },
             { id: "commissions", label: "Commissions", icon: DollarSign },
             { id: "payouts", label: "Payouts", icon: CreditCard },
+            { id: "materials", label: "Promo", icon: Share2 },
             { id: "notifications", label: "Alerts", icon: Bell },
             { id: "settings", label: "Settings", icon: Settings }
           ].map((tab) => {
@@ -249,6 +254,7 @@ export default function Home() {
               {activeTab === "dashboard" && "Workspace Hub"}
               {activeTab === "commissions" && "Conversion Records"}
               {activeTab === "payouts" && "Historic Distribution Ledgers"}
+              {activeTab === "materials" && "Referral Message Center"}
               {activeTab === "notifications" && "Operational Alerts"}
               {activeTab === "settings" && "Profile Configuration"}
             </h1>
@@ -311,9 +317,20 @@ export default function Home() {
               handleProfileUpdate={handleProfileUpdate}
             />
           )}
+
+          {activeTab === "materials" && (
+            <ReferralMaterialsTab partner={partner} />
+          )}
         </AnimatePresence>
 
       </main>
+
+      {/* Interactive Onboarding Site Tour */}
+      <DashboardTour
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        partnerCode={partner.referralCode}
+      />
 
       {/* FOOTER */}
       <footer className="bg-[#131b19] text-[#DAF0DD]/40 py-6 text-center text-xs font-mono border-t border-[#DAF0DD]/10 mt-16 z-10" id="portal-footer">

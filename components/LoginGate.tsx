@@ -49,6 +49,33 @@ export default function LoginGate({
   handleLogin,
   handleEmailAuth
 }: LoginGateProps) {
+  // Earning potential calculator states
+  const [calcCountry, setCalcCountry] = React.useState<"Nigeria" | "United States" | "United Kingdom" | "Europe">("Nigeria");
+  const [calcType, setCalcType] = React.useState<"individual" | "corporate">("individual");
+  const [calcRefs, setCalcRefs] = React.useState<number>(10);
+
+  const getCalcReward = (countryStr: string, typeStr: "individual" | "corporate") => {
+    const c = countryStr.toLowerCase();
+    if (c === "united states" || c === "us") {
+      return { rate: typeStr === "corporate" ? 2.17 : 1.8, symbol: "$", code: "USD" };
+    } else if (c === "united kingdom" || c === "uk") {
+      return { rate: typeStr === "corporate" ? 1.66 : 1.66, symbol: "£", code: "GBP" };
+    } else if (c === "europe") {
+      return { rate: typeStr === "corporate" ? 1.91 : 1.91, symbol: "€", code: "EUR" };
+    } else {
+      return { rate: typeStr === "corporate" ? 3000 : 1500, symbol: "₦", code: "NGN" };
+    }
+  };
+
+  const calcConfig = getCalcReward(calcCountry, calcType);
+
+  const formatReward = (amount: number, code: string) => {
+    if (code === "NGN") {
+      return amount.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
+    return amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
   return (
     <div id="login-container" className="min-h-screen bg-[#1A2421] text-[#DAF0DD] flex flex-col justify-between relative overflow-hidden">
       {/* Backdrop Orbs */}
@@ -58,7 +85,7 @@ export default function LoginGate({
       {/* Global Utilities Rail */}
       <div className="w-full bg-[#131b19] border-b border-[#DAF0DD]/10 py-2.5 px-6 flex justify-between items-center text-[11px] font-mono text-[#DAF0DD]/60" id="utilities-rail">
         <div className="flex items-center gap-3" id="network-status-indicator">
-          <span>NETWORK: ACTIVE</span>
+          <span>PORTAL GATEWAY: OPEN</span>
           <span className="w-1.5 h-1.5 rounded-full bg-[#00CC88] animate-pulse"></span>
         </div>
         <div id="clock-display">{currentTime || "SECURE PORTAL"}</div>
@@ -74,53 +101,146 @@ export default function LoginGate({
             <span className="font-display font-bold text-lg tracking-tight bg-gradient-to-r from-[#00CC88] via-white to-[#F7F167] bg-clip-text text-transparent" id="brand-name">
               DELOXE HR
             </span>
-            <span className="text-[9px] font-mono tracking-widest text-[#DAF0DD]/60" id="brand-tagline">PARTNER PORTAL</span>
+            <span className="text-[9px] font-mono tracking-widest text-[#DAF0DD]/60" id="brand-tagline">AMBASSADOR PORTAL</span>
           </div>
         </div>
       </header>
 
       {/* Hero Area */}
-      <main className="max-w-7xl w-full mx-auto px-6 flex flex-col lg:flex-row items-center justify-center gap-16 py-12 z-10 flex-grow" id="hero-section">
-        <div className="max-w-xl text-left" id="hero-info">
+      <main className="max-w-7xl w-full mx-auto px-6 flex flex-col lg:flex-row items-start justify-center gap-12 py-8 z-10 flex-grow" id="hero-section">
+        <div className="max-w-xl text-left space-y-6" id="hero-info">
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             id="hero-animation-wrapper"
+            className="space-y-4"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00CC88]/5 border border-[#00CC88]/15 rounded-full text-[11px] font-mono font-medium text-[#00CC88] mb-6" id="incentive-badge">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00CC88]/10 border border-[#00CC88]/20 rounded-full text-[11px] font-mono font-medium text-[#00CC88]" id="incentive-badge">
               <Sparkles className="w-3.5 h-3.5" />
-              Talent Incentive Hub
+              Ambassador Program
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-white mb-6 leading-[1.1]" id="hero-title">
-              Referral Incentive Portal <br />
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold tracking-tight text-white leading-tight" id="hero-title">
+              Become an <br />
               <span className="bg-gradient-to-r from-[#00CC88] via-white to-[#F7F167] bg-clip-text text-transparent">
-                Incentives on Autopilot.
+                Internship Ambassador
               </span>
             </h1>
-            <p className="text-[#DAF0DD]/80 text-base leading-relaxed mb-8" id="hero-desc">
-              Integrate directly with Deloxe’s official HR incentive infrastructure. Distribute your unique link, monitor live conversion traffic, track earned commissions, and secure reliable automated payouts.
+            <p className="text-[#DAF0DD]/90 text-sm sm:text-base leading-relaxed" id="hero-desc">
+              Help students and graduates access world-class career training opportunities and earn financial rewards for every single successful referral. Incentives are tracked in real-time and paid on autopilot.
             </p>
           </motion.div>
 
-          {/* Structured Features bento */}
-          <motion.div 
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            id="features-bento"
+          {/* Interactive Calculator Bento Box */}
+          <motion.div
+            className="p-6 rounded-2xl bg-[#23312C]/50 border border-[#00CC88]/20 backdrop-blur shadow-2xl space-y-5"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            id="earnings-calculator"
           >
-            <div className="p-4 rounded-xl bg-[#23312C]/40 border border-[#DAF0DD]/10 backdrop-blur" id="bento-referral">
-              <Globe className="w-5 h-5 text-[#F7F167] mb-2" />
-              <h3 className="font-semibold text-[#DAF0DD] text-sm font-display">Alphanumeric Codes</h3>
-              <p className="text-xs text-[#DAF0DD]/70 mt-1">Get instant uppercase referral tags and structured tracking parameters upon sign up.</p>
+            <div>
+              <h3 className="font-display font-bold text-sm text-[#DAF0DD] flex items-center gap-2">
+                <Globe className="w-4 h-4 text-[#00CC88]" />
+                <span>Calculate Your Earning Potential</span>
+              </h3>
+              <p className="text-[11px] text-[#DAF0DD]/60 mt-1">Adjust configuration to simulate real-time payout distributions</p>
             </div>
-            <div className="p-4 rounded-xl bg-[#23312C]/40 border border-[#DAF0DD]/10 backdrop-blur" id="bento-rates">
-              <Award className="w-5 h-5 text-[#00CC88] mb-2" />
-              <h3 className="font-semibold text-[#DAF0DD] text-sm font-display">Standardized Rate Tiers</h3>
-              <p className="text-xs text-[#DAF0DD]/70 mt-1">Earn highly structured base rewards tailored automatically based on your selected partner tier.</p>
+
+            {/* Selection Toggles */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" id="calc-controls">
+              <div className="flex flex-col gap-1">
+                <span className="text-[9px] font-mono font-semibold text-[#DAF0DD]/50 uppercase tracking-wider">Operating Region</span>
+                <select
+                  value={calcCountry}
+                  onChange={(e) => setCalcCountry(e.target.value as any)}
+                  className="p-2.5 bg-[#131b19] border border-[#DAF0DD]/15 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/50 cursor-pointer font-sans"
+                  id="calc-country-select"
+                >
+                  <option value="Nigeria">Nigeria (₦ / NGN)</option>
+                  <option value="United States">United States ($ / USD)</option>
+                  <option value="United Kingdom">United Kingdom (£ / GBP)</option>
+                  <option value="Europe">Europe (€ / EUR)</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <span className="text-[9px] font-mono font-semibold text-[#DAF0DD]/50 uppercase tracking-wider">Partner Tier</span>
+                <div className="grid grid-cols-2 gap-1 bg-[#131b19] p-1 border border-[#DAF0DD]/15 rounded-xl font-mono text-[10px]" id="calc-tier-toggle">
+                  <button
+                    type="button"
+                    onClick={() => setCalcType("individual")}
+                    className={`py-1.5 rounded-lg font-bold cursor-pointer transition-all ${
+                      calcType === "individual" ? "bg-[#00CC88]/15 text-[#00CC88] border border-[#00CC88]/25" : "text-[#DAF0DD]/50"
+                    }`}
+                  >
+                    INDIVIDUAL
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCalcType("corporate")}
+                    className={`py-1.5 rounded-lg font-bold cursor-pointer transition-all ${
+                      calcType === "corporate" ? "bg-[#00CC88]/15 text-[#00CC88] border border-[#00CC88]/25" : "text-[#DAF0DD]/50"
+                    }`}
+                  >
+                    CORPORATE
+                  </button>
+                </div>
+              </div>
             </div>
+
+            {/* Slider Component */}
+            <div className="space-y-2 bg-[#131b19]/40 p-4 rounded-xl border border-[#DAF0DD]/10" id="calc-slider-box">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-medium text-[#DAF0DD]/70">Successful Referrals:</span>
+                <span className="font-mono font-bold text-[#00CC88] text-sm bg-[#00CC88]/5 px-2 py-0.5 rounded border border-[#00CC88]/15">{calcRefs} People</span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="150"
+                value={calcRefs}
+                onChange={(e) => setCalcRefs(parseInt(e.target.value))}
+                className="w-full accent-[#00CC88] bg-[#131b19] h-1.5 rounded-lg appearance-none cursor-pointer border border-[#DAF0DD]/10"
+                id="calc-range-slider"
+              />
+            </div>
+
+            {/* Live Earnings Payout display */}
+            <div className="p-4 rounded-xl bg-gradient-to-r from-[#131b19] to-[#23312C] border border-[#00CC88]/30 flex justify-between items-center" id="calc-total-display">
+              <div>
+                <span className="text-[10px] font-mono text-[#DAF0DD]/40 uppercase tracking-widest block">Estimated Payout Earnings</span>
+                <span className="text-2xl font-display font-extrabold text-[#00CC88] tracking-tight">
+                  {calcConfig.symbol}{formatReward(calcConfig.rate * calcRefs, calcConfig.code)}
+                </span>
+              </div>
+              <div className="text-right font-mono text-[10px] text-[#DAF0DD]/50">
+                <span>Commission Rate:</span>
+                <span className="block font-bold text-[#F7F167] mt-0.5">{calcConfig.symbol}{formatReward(calcConfig.rate, calcConfig.code)} / referral</span>
+              </div>
+            </div>
+
+            {/* Specific Milestones Table (refer 5, 10, 50, 100 people) */}
+            <div className="pt-2" id="potential-milestones">
+              <span className="text-[9px] font-mono font-semibold text-[#DAF0DD]/40 uppercase tracking-wider block mb-2">Earning Milestone Potential</span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[11px]">
+                {[5, 10, 50, 100].map((num) => (
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={() => setCalcRefs(num)}
+                    className="p-2.5 rounded-xl bg-[#131b19] border border-[#DAF0DD]/10 hover:border-[#00CC88]/50 text-left transition-all group cursor-pointer"
+                    id={`milestone-preset-${num}`}
+                  >
+                    <span className="text-[9px] text-[#DAF0DD]/40 block uppercase tracking-wider">Refer {num}</span>
+                    <span className="font-bold text-white group-hover:text-[#00CC88] transition-all block mt-0.5">
+                      {calcConfig.symbol}{formatReward(calcConfig.rate * num, calcConfig.code)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
           </motion.div>
         </div>
 

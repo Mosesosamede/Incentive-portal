@@ -59,7 +59,7 @@ export function usePartner() {
   const [currentTime, setCurrentTime] = useState("");
 
   // Tabs
-  const [activeTab, setActiveTab] = useState<"dashboard" | "commissions" | "payouts" | "notifications" | "settings">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "commissions" | "payouts" | "materials" | "notifications" | "settings">("dashboard");
 
   // Onboarding Wizard Form State
   const [obForm, setObForm] = useState({
