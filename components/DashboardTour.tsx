@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles, ArrowRight, HelpCircle, X, ChevronRight } from "lucide-react";
+import { Cpu, ArrowRight, HelpCircle, X, ChevronRight } from "lucide-react";
 
 interface DashboardTourProps {
   activeTab: string;
@@ -84,7 +84,7 @@ export default function DashboardTour({
           {/* Header */}
           <div className="p-5 border-b border-[#DAF0DD]/10 bg-[#131b19]/50 flex justify-between items-center">
             <div className="flex items-center gap-2 text-[#00CC88]">
-              <Sparkles className="w-4.5 h-4.5 animate-spin" />
+              <Cpu className="w-4.5 h-4.5 animate-pulse text-[#00CC88]" />
               <span className="font-display font-bold text-xs tracking-wider uppercase">Ambassador Portal Navigator</span>
             </div>
             <button

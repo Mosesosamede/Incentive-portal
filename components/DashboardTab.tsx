@@ -12,7 +12,8 @@ import {
   DollarSign, 
   Calendar, 
   Activity, 
-  ChevronRight 
+  ChevronRight,
+  Cpu
 } from "lucide-react";
 import ClockIcon from "./ClockIcon";
 import { formatDate } from "@/lib/date-utils";
@@ -121,6 +122,88 @@ export default function DashboardTab({
           </div>
 
           <span className="text-[10px] font-mono text-[#00CC88]/80 font-bold tracking-widest">{partner.referralCode}</span>
+        </div>
+      </div>
+
+      {/* Cute Ambassador Step-by-Step Success Roadmap */}
+      <div className="p-6 rounded-2xl bg-[#23312C]/40 border border-[#00CC88]/20 backdrop-blur-md space-y-4 shadow-xl" id="dashboard-success-roadmap">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+          <div>
+            <h3 className="font-display font-bold text-sm text-[#DAF0DD] flex items-center gap-2">
+              <Cpu className="w-4 h-4 text-[#00CC88] animate-pulse" />
+              <span>Ambassador Blueprint: How it Works</span>
+            </h3>
+            <p className="text-[11px] text-[#DAF0DD]/60 mt-0.5">Your simple, cute 4-step guide to refer talent and earn automated payouts</p>
+          </div>
+          <span className="self-start sm:self-center text-[10px] bg-[#00CC88]/10 text-[#00CC88] px-2.5 py-0.5 rounded-full font-mono font-bold border border-[#00CC88]/20">
+            PARTNER STATS SECURED
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" id="dashboard-roadmap-grid">
+          {/* Step 1 */}
+          <div className="p-3 bg-[#131b19]/60 rounded-xl border border-[#DAF0DD]/10 hover:border-[#00CC88]/30 transition-all flex items-start gap-3 group cursor-default" id="dash-step-1">
+            <span className="w-6 h-6 rounded-full bg-[#00CC88]/10 border border-[#00CC88]/30 flex items-center justify-center font-mono font-extrabold text-[#00CC88] text-xs shrink-0 group-hover:scale-115 group-hover:bg-[#00CC88] group-hover:text-[#1A2421] transition-all duration-200">
+              1
+            </span>
+            <div className="space-y-0.5">
+              <h4 className="font-display font-bold text-[11px] text-white flex items-center gap-1.5">
+                <span>Share Link</span>
+                <span className="text-[10px]">🔗</span>
+              </h4>
+              <p className="text-[10px] text-[#DAF0DD]/70 leading-relaxed">
+                Post your unique tracking link across your social network.
+              </p>
+            </div>
+          </div>
+
+          {/* Step 2 */}
+          <div className="p-3 bg-[#131b19]/60 rounded-xl border border-[#DAF0DD]/10 hover:border-[#00CC88]/30 transition-all flex items-start gap-3 group cursor-default" id="dash-step-2">
+            <span className="w-6 h-6 rounded-full bg-[#00CC88]/10 border border-[#00CC88]/30 flex items-center justify-center font-mono font-extrabold text-[#00CC88] text-xs shrink-0 group-hover:scale-115 group-hover:bg-[#00CC88] group-hover:text-[#1A2421] transition-all duration-200">
+              2
+            </span>
+            <div className="space-y-0.5">
+              <h4 className="font-display font-bold text-[11px] text-white flex items-center gap-1.5">
+                <span>Invite Talents</span>
+                <span className="text-[10px]">🎓</span>
+              </h4>
+              <p className="text-[10px] text-[#DAF0DD]/70 leading-relaxed">
+                Invite student & graduate professionals looking for internships.
+              </p>
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div className="p-3 bg-[#131b19]/60 rounded-xl border border-[#DAF0DD]/10 hover:border-[#00CC88]/30 transition-all flex items-start gap-3 group cursor-default" id="dash-step-3">
+            <span className="w-6 h-6 rounded-full bg-[#00CC88]/10 border border-[#00CC88]/30 flex items-center justify-center font-mono font-extrabold text-[#00CC88] text-xs shrink-0 group-hover:scale-115 group-hover:bg-[#00CC88] group-hover:text-[#1A2421] transition-all duration-200">
+              3
+            </span>
+            <div className="space-y-0.5">
+              <h4 className="font-display font-bold text-[11px] text-white flex items-center gap-1.5">
+                <span>Earn Payouts</span>
+                <span className="text-[10px]">💰</span>
+              </h4>
+              <p className="text-[10px] text-[#DAF0DD]/70 leading-relaxed">
+                Instantly earn automated reward payouts once they join successfully.
+              </p>
+            </div>
+          </div>
+
+          {/* Step 4 */}
+          <div className="p-3 bg-[#131b19]/60 rounded-xl border border-[#DAF0DD]/10 hover:border-[#00CC88]/30 transition-all flex items-start gap-3 group cursor-default" id="dash-step-4">
+            <span className="w-6 h-6 rounded-full bg-[#00CC88]/10 border border-[#00CC88]/30 flex items-center justify-center font-mono font-extrabold text-[#00CC88] text-xs shrink-0 group-hover:scale-115 group-hover:bg-[#00CC88] group-hover:text-[#1A2421] transition-all duration-200">
+              4
+            </span>
+            <div className="space-y-0.5">
+              <h4 className="font-display font-bold text-[11px] text-white flex items-center gap-1.5">
+                <span>Track Analytics</span>
+                <span className="text-[10px]">📊</span>
+              </h4>
+              <p className="text-[10px] text-[#DAF0DD]/70 leading-relaxed">
+                Monitor real-time stats and metrics inside your private cockpit.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 

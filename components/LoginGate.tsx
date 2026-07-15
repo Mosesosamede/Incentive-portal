@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { 
-  Sparkles, 
+  Cpu, 
   Globe, 
   Award, 
   EyeOff, 
@@ -117,17 +117,17 @@ export default function LoginGate({
             className="space-y-4"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00CC88]/10 border border-[#00CC88]/20 rounded-full text-[11px] font-mono font-medium text-[#00CC88]" id="incentive-badge">
-              <Sparkles className="w-3.5 h-3.5" />
+              <Cpu className="w-3.5 h-3.5 animate-pulse text-[#00CC88]" />
               Ambassador Program
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold tracking-tight text-white leading-tight" id="hero-title">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold tracking-tight text-white leading-tight" id="hero-title">
               Become an <br />
               <span className="bg-gradient-to-r from-[#00CC88] via-white to-[#F7F167] bg-clip-text text-transparent">
                 Internship Ambassador
               </span>
             </h1>
-            <p className="text-[#DAF0DD]/90 text-sm sm:text-base leading-relaxed" id="hero-desc">
-              Help students and graduates access world-class career training opportunities and earn financial rewards for every single successful referral. Incentives are tracked in real-time and paid on autopilot.
+            <p className="text-[#DAF0DD]/80 text-[13px] leading-relaxed" id="hero-desc">
+              Help students and graduates access premium career placements and earn automated rewards for every single referral. Checked and paid in real-time.
             </p>
           </motion.div>
 
@@ -241,6 +241,92 @@ export default function LoginGate({
               </div>
             </div>
 
+          </motion.div>
+
+          {/* Cute Step-by-Step Referral Guide */}
+          <motion.div
+            className="p-6 rounded-2xl bg-[#23312C]/40 border border-[#00CC88]/20 backdrop-blur-md space-y-4 shadow-xl"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            id="how-it-works-section"
+          >
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-display font-bold text-sm text-[#DAF0DD] flex items-center gap-2">
+                  <Cpu className="w-4 h-4 text-[#00CC88] animate-pulse" />
+                  <span>How the Referral Program Works</span>
+                </h3>
+                <p className="text-[11px] text-[#DAF0DD]/60 mt-0.5">Simple, fast, and cute 4-step workflow to unlock payouts</p>
+              </div>
+              <span className="text-[10px] bg-[#00CC88]/10 text-[#00CC88] px-2 py-0.5 rounded-full font-mono font-bold border border-[#00CC88]/20">EASY GUIDE</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" id="how-it-works-grid">
+              {/* Step 1 */}
+              <div className="p-3 bg-[#131b19]/70 rounded-xl border border-[#DAF0DD]/10 hover:border-[#00CC88]/30 transition-all flex items-start gap-3 group cursor-default" id="step-card-1">
+                <span className="w-6 h-6 rounded-full bg-[#00CC88]/10 border border-[#00CC88]/30 flex items-center justify-center font-mono font-extrabold text-[#00CC88] text-xs shrink-0 group-hover:scale-110 group-hover:bg-[#00CC88] group-hover:text-[#1A2421] transition-all duration-200">
+                  1
+                </span>
+                <div className="space-y-0.5">
+                  <h4 className="font-display font-bold text-[11px] text-white flex items-center gap-1.5">
+                    <span>Share Link</span>
+                    <span className="text-[10px]">🔗</span>
+                  </h4>
+                  <p className="text-[10px] text-[#DAF0DD]/70 leading-relaxed">
+                    Post your unique tracking link across your social network.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="p-3 bg-[#131b19]/70 rounded-xl border border-[#DAF0DD]/10 hover:border-[#00CC88]/30 transition-all flex items-start gap-3 group cursor-default" id="step-card-2">
+                <span className="w-6 h-6 rounded-full bg-[#00CC88]/10 border border-[#00CC88]/30 flex items-center justify-center font-mono font-extrabold text-[#00CC88] text-xs shrink-0 group-hover:scale-110 group-hover:bg-[#00CC88] group-hover:text-[#1A2421] transition-all duration-200">
+                  2
+                </span>
+                <div className="space-y-0.5">
+                  <h4 className="font-display font-bold text-[11px] text-white flex items-center gap-1.5">
+                    <span>Invite Talents</span>
+                    <span className="text-[10px]">🎓</span>
+                  </h4>
+                  <p className="text-[10px] text-[#DAF0DD]/70 leading-relaxed">
+                    Invite student & graduate professionals looking for internships.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className="p-3 bg-[#131b19]/70 rounded-xl border border-[#DAF0DD]/10 hover:border-[#00CC88]/30 transition-all flex items-start gap-3 group cursor-default" id="step-card-3">
+                <span className="w-6 h-6 rounded-full bg-[#00CC88]/10 border border-[#00CC88]/30 flex items-center justify-center font-mono font-extrabold text-[#00CC88] text-xs shrink-0 group-hover:scale-110 group-hover:bg-[#00CC88] group-hover:text-[#1A2421] transition-all duration-200">
+                  3
+                </span>
+                <div className="space-y-0.5">
+                  <h4 className="font-display font-bold text-[11px] text-white flex items-center gap-1.5">
+                    <span>Earn Payouts</span>
+                    <span className="text-[10px]">💰</span>
+                  </h4>
+                  <p className="text-[10px] text-[#DAF0DD]/70 leading-relaxed">
+                    Instantly earn automated reward payouts once they join successfully.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 4 */}
+              <div className="p-3 bg-[#131b19]/70 rounded-xl border border-[#DAF0DD]/10 hover:border-[#00CC88]/30 transition-all flex items-start gap-3 group cursor-default" id="step-card-4">
+                <span className="w-6 h-6 rounded-full bg-[#00CC88]/10 border border-[#00CC88]/30 flex items-center justify-center font-mono font-extrabold text-[#00CC88] text-xs shrink-0 group-hover:scale-110 group-hover:bg-[#00CC88] group-hover:text-[#1A2421] transition-all duration-200">
+                  4
+                </span>
+                <div className="space-y-0.5">
+                  <h4 className="font-display font-bold text-[11px] text-white flex items-center gap-1.5">
+                    <span>Track Analytics</span>
+                    <span className="text-[10px]">📊</span>
+                  </h4>
+                  <p className="text-[10px] text-[#DAF0DD]/70 leading-relaxed">
+                    Monitor real-time stats and metrics inside your private cockpit.
+                  </p>
+                </div>
+              </div>
+            </div>
           </motion.div>
         </div>
 

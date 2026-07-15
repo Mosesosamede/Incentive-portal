@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { Copy, Check, Share2, Megaphone, HelpCircle, Sparkles } from "lucide-react";
+import { Copy, Check, Share2, Megaphone, HelpCircle, Cpu } from "lucide-react";
 import { PartnerDocument } from "@/lib/db-helpers";
 
 interface ReferralMaterialsTabProps {
@@ -54,7 +54,7 @@ export default function ReferralMaterialsTab({ partner }: ReferralMaterialsTabPr
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#00CC88]/10 border border-[#00CC88]/20 rounded-full text-[10px] font-mono text-[#00CC88]">
-              <Sparkles className="w-3 h-3 animate-spin" /> PROMOTIONAL SUITE
+              <Cpu className="w-3.5 h-3.5 animate-pulse text-[#00CC88]" /> PROMOTIONAL SUITE
             </div>
             <h2 className="font-display font-bold text-lg text-[#DAF0DD] mt-2">Ambassador Referral Materials</h2>
             <p className="text-xs text-[#DAF0DD]/70 max-w-2xl leading-relaxed">

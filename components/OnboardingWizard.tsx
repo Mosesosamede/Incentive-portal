@@ -79,7 +79,7 @@ export default function OnboardingWizard({
             </p>
             <button
               onClick={handleLogout}
-              className="px-6 py-3 rounded-xl bg-[#23312C] border border-[#DAF0DD]/20 text-[#DAF0DD] text-xs font-bold hover:bg-[#23312C]/80 transition cursor-pointer font-mono"
+              className="px-6 py-3 rounded-xl bg-[#F7F069]/10 border border-[#F7F069]/30 text-[#F7F069] text-xs font-bold hover:bg-[#F7F069]/20 transition cursor-pointer font-mono"
             >
               Go back to Login
             </button>

@@ -131,7 +131,7 @@ export default function Home() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00CC88] animate-pulse"></span>
-            <span>DELOXE STATE: SYNCHRONIZED</span>
+            <span>AI PARTNER ENGINE: REAL-TIME SYNCHRONIZED</span>
           </div>
           <span className="text-[#DAF0DD]/20">|</span>
           <div>REFERRAL INCENTIVE ID: <span className="text-[#DAF0DD] font-bold">{partner.partnerDisplayId || ("DELXp" + partner.partnerId.slice(0, 4).toUpperCase())}</span></div>
@@ -208,50 +208,25 @@ export default function Home() {
               <button
                 id="logout-btn"
                 onClick={handleLogout}
-                className="p-1.5 rounded-lg text-[#DAF0DD]/50 hover:text-[#DAF0DD] hover:bg-[#131b19] transition-all cursor-pointer"
+                className="p-1.5 rounded-lg text-[#F7F069] hover:bg-[#F7F069]/10 transition-all cursor-pointer flex items-center gap-1.5"
                 title="Log Out"
               >
                 <LogOut className="w-4 h-4" />
+                <span className="text-[10px] font-mono font-bold hidden md:inline">EXIT</span>
               </button>
             </div>
           </div>
         </div>
-
-        {/* Mobile Nav Rail */}
-        <div className="md:hidden w-full bg-[#131b19] border-t border-[#DAF0DD]/15 p-1 px-4 flex justify-between" id="mobile-nav-rail">
-          {[
-            { id: "dashboard", label: "Overview", icon: Grid },
-            { id: "commissions", label: "Commissions", icon: DollarSign },
-            { id: "payouts", label: "Payouts", icon: CreditCard },
-            { id: "materials", label: "Promo", icon: Share2 },
-            { id: "notifications", label: "Alerts", icon: Bell },
-            { id: "settings", label: "Settings", icon: Settings }
-          ].map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`py-2 px-3 text-[10px] font-semibold flex flex-col items-center gap-1 transition-all cursor-pointer ${
-                  activeTab === tab.id ? "text-[#00CC88] font-bold" : "text-[#DAF0DD]/50"
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
       </header>
 
       {/* Main Dashboard Container */}
-      <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 flex-grow" id="main-content">
+      <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 pb-32 md:pb-12 flex-grow" id="main-content">
         
         {/* Dashboard Title & Quick Status */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8" id="title-status-section">
           <div>
-            <h1 className="text-2xl font-display font-extrabold text-white tracking-tight">
-              {activeTab === "dashboard" && "Workspace Hub"}
+            <h1 className="text-xl font-display font-extrabold text-white tracking-tight">
+              {activeTab === "dashboard" && "Ambassador Central"}
               {activeTab === "commissions" && "Conversion Records"}
               {activeTab === "payouts" && "Historic Distribution Ledgers"}
               {activeTab === "materials" && "Referral Message Center"}
@@ -333,12 +308,62 @@ export default function Home() {
       />
 
       {/* FOOTER */}
-      <footer className="bg-[#131b19] text-[#DAF0DD]/40 py-6 text-center text-xs font-mono border-t border-[#DAF0DD]/10 mt-16 z-10" id="portal-footer">
+      <footer className="bg-[#131b19] text-[#DAF0DD]/40 py-6 text-center text-xs font-mono border-t border-[#DAF0DD]/10 mt-16 z-10 pb-28 md:pb-6" id="portal-footer">
         <div className="max-w-7xl w-full mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
           <span>© {new Date().getFullYear()} Deloxe Inc. Unified Referral Incentive Security Registry.</span>
           <span>Secured via Deloxe Private Ledger & Cryptographic Protocol.</span>
         </div>
       </footer>
+
+      {/* Floating Instagram/iOS-Style Bottom Navigation Capsule */}
+      <div className="md:hidden fixed bottom-5 left-4 right-4 z-50 bg-[#131b19]/90 border border-[#DAF0DD]/15 rounded-[22px] px-2.5 py-1.5 flex justify-around items-center shadow-[0_10px_35px_rgba(0,0,0,0.8)] backdrop-blur-xl" id="ios-bottom-nav-bar">
+        {[
+          { id: "dashboard", label: "Overview", icon: Grid },
+          { id: "commissions", label: "Commissions", icon: DollarSign },
+          { id: "payouts", label: "Payouts", icon: CreditCard },
+          { id: "materials", label: "Promo", icon: Share2 },
+          { id: "notifications", label: "Alerts", icon: Bell, count: notifications.filter(n => !n.read).length },
+          { id: "settings", label: "Settings", icon: Settings }
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className="relative py-2.5 px-3 flex flex-col items-center justify-center gap-0.5 rounded-xl transition-all cursor-pointer active:scale-95"
+              style={{ minWidth: "48px", minHeight: "48px" }}
+              id={`ios-nav-${tab.id}`}
+            >
+              <div className="relative flex items-center justify-center">
+                <Icon className={`w-[21px] h-[21px] transition-transform duration-200 ${
+                  isActive ? "text-[#00CC88] scale-110" : "text-[#DAF0DD]/50"
+                }`} />
+                {tab.count !== undefined && tab.count > 0 && (
+                  <span className="absolute -top-1.5 -right-2 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-rose-500 text-[8px] font-bold text-white border border-[#131b19] animate-pulse">
+                    {tab.count}
+                  </span>
+                )}
+              </div>
+              
+              <span className={`text-[9px] tracking-tight transition-colors ${
+                isActive ? "text-[#00CC88] font-bold" : "text-[#DAF0DD]/40"
+              }`}>
+                {tab.label}
+              </span>
+
+              {/* Instagram Active indicator line */}
+              {isActive && (
+                <motion.div
+                  layoutId="activeIndicator"
+                  className="absolute bottom-0 w-3 h-[2px] bg-[#00CC88] rounded-full"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
