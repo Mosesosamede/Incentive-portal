@@ -131,7 +131,7 @@ export default function Home() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00CC88] animate-pulse"></span>
-            <span>AI PARTNER ENGINE: REAL-TIME SYNCHRONIZED</span>
+            <span>DELOXE PARTNER PROTOCOL: SECURE & ACTIVE</span>
           </div>
           <span className="text-[#DAF0DD]/20">|</span>
           <div>REFERRAL INCENTIVE ID: <span className="text-[#DAF0DD] font-bold">{partner.partnerDisplayId || ("DELXp" + partner.partnerId.slice(0, 4).toUpperCase())}</span></div>
