@@ -29,8 +29,9 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} dark`}>
       <head>
-        <meta name="monetag" content="22145dc86091ff800251b061867bc075" />
-        <script src="https://5gvci.com/act/files/tag.min.js?z=11621141" data-cfasync="false" async></script>
+         <meta name="monetag" content="22145dc86091ff800251b061867bc075" />
+         <script src="https://5gvci.com/act/files/tag.min.js?z=11621141" data-cfasync="false" async></script>
+         <script>(function(s){s.dataset.zone='11624497',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
       </head>
       <body suppressHydrationWarning className="bg-[#0b0f19] text-slate-100 min-h-screen font-sans antialiased">
         {children}
