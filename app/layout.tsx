@@ -30,6 +30,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} dark`}>
       <head>
         <meta name="monetag" content="22145dc86091ff800251b061867bc075" />
+        <script src="https://5gvci.com/act/files/tag.min.js?z=11621141" data-cfasync="false" async></script>
       </head>
       <body suppressHydrationWarning className="bg-[#0b0f19] text-slate-100 min-h-screen font-sans antialiased">
         {children}
