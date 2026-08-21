@@ -28,6 +28,9 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} dark`}>
+      <head>
+        <meta name="monetag" content="22145dc86091ff800251b061867bc075">
+      </head>
       <body suppressHydrationWarning className="bg-[#0b0f19] text-slate-100 min-h-screen font-sans antialiased">
         {children}
       </body>
