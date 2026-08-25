@@ -105,14 +105,37 @@ export function getRewardConfig(country: string, partnerType: 'individual' | 'co
 }
 
 export const CRYPTO_NETWORKS: Record<string, string[]> = {
-  USDT: ['SOL', 'Polygon', 'Ethereum'],
-  USDC: ['SOL', 'Polygon', 'Ethereum', 'Base'],
+  USDT: ['SOL', 'Polygon', 'Ethereum', 'Arbitrum'],
+  USDC: ['SOL', 'Polygon', 'Ethereum', 'Base', 'Arbitrum'],
   RLUSD: ['Ethereum']
 };
 
 export function isValidCryptoNetwork(currency: string, network: string): boolean {
   if (!CRYPTO_NETWORKS[currency]) return false;
   return CRYPTO_NETWORKS[currency].includes(network);
+}
+
+export function isValidWalletAddress(network: string, address: string): { valid: boolean; message?: string } {
+  if (!address || address.trim() === "") {
+    return { valid: false, message: "Wallet address cannot be empty." };
+  }
+  if (/\s/.test(address)) {
+    return { valid: false, message: "🚫 Oops! Adding a space anywhere in the address makes it invalid." };
+  }
+
+  const evmNetworks = ['Ethereum', 'Polygon', 'Base', 'Arbitrum'];
+  if (evmNetworks.includes(network)) {
+    const evmRegex = /^0x[a-fA-F0-9]{40}$/;
+    if (!evmRegex.test(address)) {
+      return { valid: false, message: `🚫 Invalid ${network} address format. Must start with '0x' and be exactly 42 characters long.` };
+    }
+  } else if (network === 'SOL') {
+    const solRegex = /^[1-57-9A-HJ-NP-Za-km-z]{32,44}$/;
+    if (!solRegex.test(address)) {
+      return { valid: false, message: "🚫 Invalid Solana address format. Must be 32-44 characters (Base58, excluding 0, O, I, l)." };
+    }
+  }
+  return { valid: true };
 }
 
 export interface PartnerDocument {
@@ -420,6 +443,12 @@ export async function updatePartnerProfile(
         throw new Error(`Invalid network "${updates.cryptoNetwork}" for cryptocurrency "${updates.cryptoCurrency}"`);
       }
     }
+    if (updates.cryptoNetwork && updates.walletAddress !== undefined) {
+      const val = isValidWalletAddress(updates.cryptoNetwork, updates.walletAddress);
+      if (!val.valid) {
+        throw new Error(val.message || "Invalid wallet address.");
+      }
+    }
   }
   try {
     await updateDoc(doc(db, "partners", partnerId), {
@@ -479,7 +508,7 @@ export async function seedPlaceholderDocuments(partnerId: string, referralCode: 
   const referralClickNotifDoc: NotificationDocument = {
     notificationId: referralClickNotifId,
     partnerId,
-    title: "New Referral Click",
+    title: "New Referral CLick",
     message: "Someone visited your referral link from NG using Chrome on Desktop.",
     read: false,
     createdAt: serverTimestamp() as any
@@ -511,3 +540,4 @@ export async function seedPlaceholderDocuments(partnerId: string, referralCode: 
     handleFirestoreError(error, OperationType.CREATE, "seeding_placeholders");
   }
 }
+
