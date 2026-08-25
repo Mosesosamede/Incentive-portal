@@ -21,6 +21,7 @@ import {
   testConnection,
   getRewardConfig,
   isEmailRegisteredInPartners,
+  isValidCryptoNetwork,
   PartnerDocument,
   PartnerStatsDocument,
   PartnerCommissionDocument,
@@ -72,9 +73,13 @@ export function usePartner() {
     email: "",
     phone: "",
     socialHandle: "",
+    payoutMethod: "bank_transfer" as "bank_transfer" | "crypto",
     bankName: "",
     accountName: "",
     accountNumber: "",
+    cryptoCurrency: "USDT" as "USDT" | "USDC" | "RLUSD",
+    cryptoNetwork: "Polygon",
+    walletAddress: "",
     payoutFrequency: "weekly" as "weekly" | "monthly",
     agreementAccepted: false,
     digitalSignature: ""
@@ -89,9 +94,13 @@ export function usePartner() {
     email: "",
     phone: "",
     socialHandle: "",
+    payoutMethod: "bank_transfer" as "bank_transfer" | "crypto",
     bankName: "",
     accountName: "",
     accountNumber: "",
+    cryptoCurrency: "USDT" as "USDT" | "USDC" | "RLUSD",
+    cryptoNetwork: "Polygon",
+    walletAddress: "",
     payoutFrequency: "weekly" as "weekly" | "monthly"
   });
   const [editLoading, setEditLoading] = useState(false);
@@ -132,9 +141,13 @@ export function usePartner() {
               email: profile.email || "",
               phone: profile.phone || "",
               socialHandle: profile.socialHandle || "",
+              payoutMethod: profile.payoutMethod || "bank_transfer",
               bankName: profile.bankName || "",
               accountName: profile.accountName || "",
               accountNumber: profile.accountNumber || "",
+              cryptoCurrency: profile.cryptoCurrency || "USDT",
+              cryptoNetwork: profile.cryptoNetwork || "Polygon",
+              walletAddress: profile.walletAddress || "",
               payoutFrequency: profile.payoutFrequency || "weekly"
             });
           } else {
@@ -367,7 +380,7 @@ export function usePartner() {
 
     const { 
       partnerType, fullName, companyName, phone, email, socialHandle,
-      bankName, accountName, accountNumber, payoutFrequency, agreementAccepted, digitalSignature 
+      payoutMethod, bankName, accountName, accountNumber, cryptoCurrency, cryptoNetwork, walletAddress, payoutFrequency, agreementAccepted, digitalSignature 
     } = obForm;
 
     if (partnerType === "corporate" && (!companyName || !obForm.representativeName || !obForm.representativeTitle)) {
@@ -375,9 +388,25 @@ export function usePartner() {
       return;
     }
 
-    if (!fullName || !phone || !email || !socialHandle || !bankName || !accountName || !accountNumber) {
-      setOnboardingError("Please complete all profile and financial fields.");
+    if (!fullName || !phone || !email || !socialHandle) {
+      setOnboardingError("Please complete all profile fields.");
       return;
+    }
+
+    if (payoutMethod === "bank_transfer") {
+      if (!bankName || !accountName || !accountNumber) {
+        setOnboardingError("Please complete all bank transfer details.");
+        return;
+      }
+    } else {
+      if (!cryptoCurrency || !cryptoNetwork || !walletAddress) {
+        setOnboardingError("Please complete all cryptocurrency, network, and wallet address fields.");
+        return;
+      }
+      if (!isValidCryptoNetwork(cryptoCurrency, cryptoNetwork)) {
+        setOnboardingError(`Invalid network "${cryptoNetwork}" for cryptocurrency "${cryptoCurrency}".`);
+        return;
+      }
     }
 
     if (!agreementAccepted || !digitalSignature) {
@@ -432,9 +461,13 @@ export function usePartner() {
         trackingSlug,
         rewardRate,
         payoutFrequency,
-        bankName,
-        accountName,
-        accountNumber,
+        payoutMethod,
+        bankName: payoutMethod === 'bank_transfer' ? bankName : '',
+        accountName: payoutMethod === 'bank_transfer' ? accountName : '',
+        accountNumber: payoutMethod === 'bank_transfer' ? accountNumber : '',
+        cryptoCurrency: payoutMethod === 'crypto' ? cryptoCurrency : undefined,
+        cryptoNetwork: payoutMethod === 'crypto' ? cryptoNetwork : undefined,
+        walletAddress: payoutMethod === 'crypto' ? walletAddress : undefined,
         agreementAccepted
       };
 
@@ -453,15 +486,19 @@ export function usePartner() {
           email: profile.email || "",
           phone: profile.phone || "",
           socialHandle: profile.socialHandle || "",
+          payoutMethod: profile.payoutMethod || "bank_transfer",
           bankName: profile.bankName || "",
           accountName: profile.accountName || "",
           accountNumber: profile.accountNumber || "",
+          cryptoCurrency: profile.cryptoCurrency || "USDT",
+          cryptoNetwork: profile.cryptoNetwork || "Polygon",
+          walletAddress: profile.walletAddress || "",
           payoutFrequency: profile.payoutFrequency || "weekly"
         });
       }
     } catch (err: any) {
       console.error("Onboarding failed:", err);
-      setOnboardingError("Database transaction failed. Please verify credentials or contact admin.");
+      setOnboardingError(err.message || "Database transaction failed. Please verify credentials or contact admin.");
     } finally {
       setSubmittingOnboarding(false);
     }
@@ -480,6 +517,25 @@ export function usePartner() {
       return;
     }
 
+    if (editForm.payoutMethod === 'bank_transfer') {
+      if (!editForm.bankName || !editForm.accountName || !editForm.accountNumber) {
+        setEditError("Please complete all bank transfer details.");
+        setEditLoading(false);
+        return;
+      }
+    } else {
+      if (!editForm.cryptoCurrency || !editForm.cryptoNetwork || !editForm.walletAddress) {
+        setEditError("Please complete all cryptocurrency, network, and wallet address fields.");
+        setEditLoading(false);
+        return;
+      }
+      if (!isValidCryptoNetwork(editForm.cryptoCurrency, editForm.cryptoNetwork)) {
+        setEditError(`Invalid network "${editForm.cryptoNetwork}" for cryptocurrency "${editForm.cryptoCurrency}".`);
+        setEditLoading(false);
+        return;
+      }
+    }
+
     try {
       await updatePartnerProfile(user.uid, {
         fullName: editForm.fullName,
@@ -489,9 +545,13 @@ export function usePartner() {
         email: editForm.email,
         phone: editForm.phone,
         socialHandle: editForm.socialHandle,
-        bankName: editForm.bankName,
-        accountName: editForm.accountName,
-        accountNumber: editForm.accountNumber,
+        payoutMethod: editForm.payoutMethod,
+        bankName: editForm.payoutMethod === 'bank_transfer' ? editForm.bankName : '',
+        accountName: editForm.payoutMethod === 'bank_transfer' ? editForm.accountName : '',
+        accountNumber: editForm.payoutMethod === 'bank_transfer' ? editForm.accountNumber : '',
+        cryptoCurrency: editForm.payoutMethod === 'crypto' ? editForm.cryptoCurrency : undefined,
+        cryptoNetwork: editForm.payoutMethod === 'crypto' ? editForm.cryptoNetwork : undefined,
+        walletAddress: editForm.payoutMethod === 'crypto' ? editForm.walletAddress : undefined,
         payoutFrequency: editForm.payoutFrequency
       });
 
@@ -502,7 +562,7 @@ export function usePartner() {
       }
     } catch (err: any) {
       console.error("Profile update failed:", err);
-      setEditError("Failed to update profile. Ensure all inputs meet constraints.");
+      setEditError(err.message || "Failed to update profile. Ensure all inputs meet constraints.");
     } finally {
       setEditLoading(false);
     }
