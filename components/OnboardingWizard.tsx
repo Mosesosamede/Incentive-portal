@@ -12,6 +12,12 @@ import {
 } from "lucide-react";
 import { getRewardConfig } from "@/lib/db-helpers";
 
+const CRYPTO_NETWORKS_MAP: Record<string, string[]> = {
+  USDT: ['SOL', 'Polygon', 'Ethereum'],
+  USDC: ['SOL', 'Polygon', 'Ethereum', 'Base'],
+  RLUSD: ['Ethereum']
+};
+
 interface OnboardingWizardProps {
   onboardingStep: number;
   onboardingError: string;
@@ -27,9 +33,13 @@ interface OnboardingWizardProps {
     email: string;
     phone: string;
     socialHandle: string;
+    payoutMethod: "bank_transfer" | "crypto";
     bankName: string;
     accountName: string;
     accountNumber: string;
+    cryptoCurrency: "USDT" | "USDC" | "RLUSD";
+    cryptoNetwork: string;
+    walletAddress: string;
     payoutFrequency: "weekly" | "monthly";
     agreementAccepted: boolean;
     digitalSignature: string;
@@ -290,49 +300,130 @@ export default function OnboardingWizard({
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-4" id="step-3-view">
                     <h3 className="font-display font-bold text-lg text-white">3. Payout & Financial Routing</h3>
                     <p className="text-[#DAF0DD]/80 text-xs leading-relaxed mb-2">
-                      Specify your preferred settlement bank and select your processing frequency preference.
+                      Select your preferred payout method and enter your settlement routing details.
                     </p>
 
                     <div className="flex flex-col gap-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-1">
-                          <label className="text-xs font-semibold text-[#DAF0DD]/80">Settlement Bank Name *</label>
-                          <input
-                            type="text"
-                            required
-                            value={obForm.bankName}
-                            onChange={(e) => setObForm({ ...obForm, bankName: e.target.value })}
-                            className="p-3 bg-[#131b19] border border-[#DAF0DD]/20 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/60"
-                            placeholder="e.g. Access Bank, GTBank"
-                          />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          <label className="text-xs font-semibold text-[#DAF0DD]/80">Account Number (10 digits) *</label>
-                          <input
-                            type="text"
-                            required
-                            maxLength={10}
-                            value={obForm.accountNumber}
-                            onChange={(e) => setObForm({ ...obForm, accountNumber: e.target.value })}
-                            className="p-3 bg-[#131b19] border border-[#DAF0DD]/20 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/60 font-mono"
-                            placeholder="0123456789"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col gap-1">
-                        <label className="text-xs font-semibold text-[#DAF0DD]/80">Account Name *</label>
-                        <input
-                          type="text"
-                          required
-                          value={obForm.accountName}
-                          onChange={(e) => setObForm({ ...obForm, accountName: e.target.value })}
-                          className="p-3 bg-[#131b19] border border-[#DAF0DD]/20 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/60"
-                          placeholder="John Doe Enterprises"
-                        />
-                      </div>
-
                       <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-semibold text-[#DAF0DD]/85">Payout Method *</label>
+                        <div className="grid grid-cols-2 gap-4">
+                          <button
+                            type="button"
+                            onClick={() => setObForm({ ...obForm, payoutMethod: "bank_transfer" })}
+                            className={`p-3.5 rounded-xl border font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                              obForm.payoutMethod === "bank_transfer"
+                                ? "bg-[#00CC88]/10 border-[#00CC88]/60 text-[#00CC88]"
+                                : "bg-[#131b19] border-[#DAF0DD]/15 text-[#DAF0DD]/60"
+                            }`}
+                          >
+                            Bank Transfer
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setObForm({ ...obForm, payoutMethod: "crypto" })}
+                            className={`p-3.5 rounded-xl border font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                              obForm.payoutMethod === "crypto"
+                                ? "bg-[#00CC88]/10 border-[#00CC88]/60 text-[#00CC88]"
+                                : "bg-[#131b19] border-[#DAF0DD]/15 text-[#DAF0DD]/60"
+                            }`}
+                          >
+                            Crypto
+                          </button>
+                        </div>
+                      </div>
+
+                      {obForm.payoutMethod === "bank_transfer" ? (
+                        <>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1">
+                              <label className="text-xs font-semibold text-[#DAF0DD]/80">Settlement Bank Name *</label>
+                              <input
+                                type="text"
+                                required
+                                value={obForm.bankName}
+                                onChange={(e) => setObForm({ ...obForm, bankName: e.target.value })}
+                                className="p-3 bg-[#131b19] border border-[#DAF0DD]/20 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/60"
+                                placeholder="e.g. Access Bank, GTBank"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="text-xs font-semibold text-[#DAF0DD]/80">Account Number (10 digits) *</label>
+                              <input
+                                type="text"
+                                required
+                                maxLength={10}
+                                value={obForm.accountNumber}
+                                onChange={(e) => setObForm({ ...obForm, accountNumber: e.target.value })}
+                                className="p-3 bg-[#131b19] border border-[#DAF0DD]/20 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/60 font-mono"
+                                placeholder="0123456789"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <label className="text-xs font-semibold text-[#DAF0DD]/80">Account Name *</label>
+                            <input
+                              type="text"
+                              required
+                              value={obForm.accountName}
+                              onChange={(e) => setObForm({ ...obForm, accountName: e.target.value })}
+                              className="p-3 bg-[#131b19] border border-[#DAF0DD]/20 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/60"
+                              placeholder="John Doe Enterprises"
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1">
+                              <label className="text-xs font-semibold text-[#DAF0DD]/80">Cryptocurrency *</label>
+                              <select
+                                value={obForm.cryptoCurrency}
+                                onChange={(e) => {
+                                  const cur = e.target.value as "USDT" | "USDC" | "RLUSD";
+                                  const validNetworks = CRYPTO_NETWORKS_MAP[cur] || ["Ethereum"];
+                                  setObForm({
+                                    ...obForm,
+                                    cryptoCurrency: cur,
+                                    cryptoNetwork: validNetworks[0]
+                                  });
+                                }}
+                                className="p-3 bg-[#131b19] border border-[#DAF0DD]/20 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/60 font-mono"
+                              >
+                                <option value="USDT">USDT</option>
+                                <option value="USDC">USDC</option>
+                                <option value="RLUSD">RLUSD</option>
+                              </select>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="text-xs font-semibold text-[#DAF0DD]/80">Network *</label>
+                              <select
+                                value={obForm.cryptoNetwork}
+                                onChange={(e) => setObForm({ ...obForm, cryptoNetwork: e.target.value })}
+                                className="p-3 bg-[#131b19] border border-[#DAF0DD]/20 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/60 font-mono"
+                              >
+                                {(CRYPTO_NETWORKS_MAP[obForm.cryptoCurrency] || []).map(net => (
+                                  <option key={net} value={net}>{net}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <label className="text-xs font-semibold text-[#DAF0DD]/80">Wallet Address *</label>
+                            <input
+                              type="text"
+                              required
+                              value={obForm.walletAddress}
+                              onChange={(e) => setObForm({ ...obForm, walletAddress: e.target.value })}
+                              className="p-3 bg-[#131b19] border border-[#DAF0DD]/20 rounded-xl text-xs text-white focus:outline-none focus:border-[#00CC88]/60 font-mono"
+                              placeholder="Enter your crypto wallet address..."
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      <div className="flex flex-col gap-1.5 mt-2">
                         <label className="text-xs font-semibold text-[#DAF0DD]/80">Payout Settlement Frequency *</label>
                         <div className="grid grid-cols-2 gap-4 mt-1">
                           <button
@@ -433,9 +524,16 @@ export default function OnboardingWizard({
                           }
                         }
                         if (onboardingStep === 3) {
-                          if (!obForm.bankName || !obForm.accountName || !obForm.accountNumber) {
-                            setOnboardingError("Please complete all financial routing inputs to continue.");
-                            return;
+                          if (obForm.payoutMethod === "bank_transfer") {
+                            if (!obForm.bankName || !obForm.accountName || !obForm.accountNumber) {
+                              setOnboardingError("Please complete all bank transfer details.");
+                              return;
+                            }
+                          } else {
+                            if (!obForm.cryptoCurrency || !obForm.cryptoNetwork || !obForm.walletAddress) {
+                              setOnboardingError("Please complete all crypto payout details.");
+                              return;
+                            }
                           }
                         }
                         setOnboardingError("");
