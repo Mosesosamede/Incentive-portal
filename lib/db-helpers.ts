@@ -104,6 +104,17 @@ export function getRewardConfig(country: string, partnerType: 'individual' | 'co
   }
 }
 
+export const CRYPTO_NETWORKS: Record<string, string[]> = {
+  USDT: ['SOL', 'Polygon', 'Ethereum'],
+  USDC: ['SOL', 'Polygon', 'Ethereum', 'Base'],
+  RLUSD: ['Ethereum']
+};
+
+export function isValidCryptoNetwork(currency: string, network: string): boolean {
+  if (!CRYPTO_NETWORKS[currency]) return false;
+  return CRYPTO_NETWORKS[currency].includes(network);
+}
+
 export interface PartnerDocument {
   partnerId: string;           // Maps directly to Firebase Auth UID
   partnerDisplayId: string;    // User-friendly short partner ID, e.g. DELXp8129
@@ -122,9 +133,13 @@ export interface PartnerDocument {
   trackingSlug: string;        // E.g., /register?ref=MOSES91
   rewardRate: number;          // Individual or Corporate, auto-converted based on country
   payoutFrequency: 'weekly' | 'monthly';
-  bankName: string;
-  accountName: string;
-  accountNumber: string;
+  payoutMethod: 'bank_transfer' | 'crypto';
+  bankName?: string;
+  accountName?: string;
+  accountNumber?: string;
+  cryptoCurrency?: 'USDT' | 'USDC' | 'RLUSD';
+  cryptoNetwork?: string;
+  walletAddress?: string;
   agreementAccepted: boolean;
   agreementSignedAt: Timestamp | any;
   createdAt: Timestamp | any;
@@ -396,9 +411,16 @@ export async function updateNotificationReadStatus(notificationId: string, read:
  */
 export async function updatePartnerProfile(
   partnerId: string,
-  updates: Partial<Pick<PartnerDocument, 'fullName' | 'companyName' | 'representativeName' | 'representativeTitle' | 'email' | 'phone' | 'socialHandle' | 'bankName' | 'accountName' | 'accountNumber' | 'payoutFrequency'>>
+  updates: Partial<Pick<PartnerDocument, 'fullName' | 'companyName' | 'representativeName' | 'representativeTitle' | 'email' | 'phone' | 'socialHandle' | 'payoutMethod' | 'bankName' | 'accountName' | 'accountNumber' | 'cryptoCurrency' | 'cryptoNetwork' | 'walletAddress' | 'payoutFrequency'>>
 ): Promise<void> {
   const path = `partners/${partnerId}`;
+  if (updates.payoutMethod === 'crypto') {
+    if (updates.cryptoCurrency && updates.cryptoNetwork) {
+      if (!isValidCryptoNetwork(updates.cryptoCurrency, updates.cryptoNetwork)) {
+        throw new Error(`Invalid network "${updates.cryptoNetwork}" for cryptocurrency "${updates.cryptoCurrency}"`);
+      }
+    }
+  }
   try {
     await updateDoc(doc(db, "partners", partnerId), {
       ...updates,
