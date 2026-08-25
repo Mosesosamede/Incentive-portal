@@ -479,7 +479,7 @@ export async function seedPlaceholderDocuments(partnerId: string, referralCode: 
   const referralClickNotifDoc: NotificationDocument = {
     notificationId: referralClickNotifId,
     partnerId,
-    title: "New Referral CLick",
+    title: "New Referral Click",
     message: "Someone visited your referral link from NG using Chrome on Desktop.",
     read: false,
     createdAt: serverTimestamp() as any
@@ -511,4 +511,3 @@ export async function seedPlaceholderDocuments(partnerId: string, referralCode: 
     handleFirestoreError(error, OperationType.CREATE, "seeding_placeholders");
   }
 }
-
