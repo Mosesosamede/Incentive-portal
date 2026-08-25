@@ -7,8 +7,8 @@ import { formatDate } from "@/lib/date-utils";
 import { PartnerDocument } from "@/lib/db-helpers";
 
 const CRYPTO_NETWORKS_MAP: Record<string, string[]> = {
-  USDT: ['SOL', 'Polygon', 'Ethereum'],
-  USDC: ['SOL', 'Polygon', 'Ethereum', 'Base'],
+  USDT: ['SOL', 'Polygon', 'Ethereum', 'Arbitrum'],
+  USDC: ['SOL', 'Polygon', 'Ethereum', 'Base', 'Arbitrum'],
   RLUSD: ['Ethereum']
 };
 
