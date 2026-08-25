@@ -22,6 +22,7 @@ import {
   getRewardConfig,
   isEmailRegisteredInPartners,
   isValidCryptoNetwork,
+  isValidWalletAddress,
   PartnerDocument,
   PartnerStatsDocument,
   PartnerCommissionDocument,
@@ -407,6 +408,11 @@ export function usePartner() {
         setOnboardingError(`Invalid network "${cryptoNetwork}" for cryptocurrency "${cryptoCurrency}".`);
         return;
       }
+      const walletCheck = isValidWalletAddress(cryptoNetwork, walletAddress);
+      if (!walletCheck.valid) {
+        setOnboardingError(walletCheck.message || "Invalid wallet address.");
+        return;
+      }
     }
 
     if (!agreementAccepted || !digitalSignature) {
@@ -531,6 +537,12 @@ export function usePartner() {
       }
       if (!isValidCryptoNetwork(editForm.cryptoCurrency, editForm.cryptoNetwork)) {
         setEditError(`Invalid network "${editForm.cryptoNetwork}" for cryptocurrency "${editForm.cryptoCurrency}".`);
+        setEditLoading(false);
+        return;
+      }
+      const walletCheck = isValidWalletAddress(editForm.cryptoNetwork, editForm.walletAddress);
+      if (!walletCheck.valid) {
+        setEditError(walletCheck.message || "Invalid wallet address.");
         setEditLoading(false);
         return;
       }
